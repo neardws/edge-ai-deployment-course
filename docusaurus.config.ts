@@ -38,6 +38,12 @@ const config: Config = {
     ],
   ],
 
+  markdown: {
+    mermaid: true,
+  },
+
+  themes: ['@docusaurus/theme-mermaid'],
+
   themeConfig: {
     image: 'img/edge-ai-course-hero.png',
     colorMode: {
@@ -75,8 +81,8 @@ const config: Config = {
               to: '/docs/intro',
             },
             {
-              label: '课程议程',
-              to: '/docs/agenda',
+              label: '实作环境',
+              to: '/docs/lab-ubuntu-nvidia',
             },
           ],
         },

@@ -22,3 +22,15 @@ yarn-error.log*
 # Source material kept outside the public repository
 *.docx
 *课程大纲*
+
+# Local lab artifacts
+models/
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+logs/
+results/
+llama.cpp/

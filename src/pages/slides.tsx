@@ -17,7 +17,7 @@ export default function Slides(): ReactNode {
             reveal.js 课件以独立页面运行，适合全屏投屏、键盘翻页和浏览器演示。
           </p>
           <div>
-            <a className="button button--primary button--lg" href="/slides/deck/index">
+            <a className="button button--primary button--lg" href="/slides/deck/index.html">
               打开课件
             </a>
             <Link className="button button--secondary button--lg" to="/docs/intro">

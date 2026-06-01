@@ -3,10 +3,9 @@ import type {SidebarsConfig} from '@docusaurus/plugin-content-docs';
 const sidebars: SidebarsConfig = {
   courseSidebar: [
     'intro',
-    'agenda',
     {
       type: 'category',
-      label: '课程专题',
+      label: '课程书主线',
       collapsed: false,
       items: [
         'framework',
@@ -17,6 +16,18 @@ const sidebars: SidebarsConfig = {
         'runtime-deployment',
         'vlm-agent',
         'cases-qa',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Ubuntu/Qwen 实作',
+      collapsed: false,
+      items: [
+        'lab-ubuntu-nvidia',
+        'lab-qwen-baseline',
+        'lab-qwen-quantization',
+        'lab-profiling',
+        'lab-local-service',
       ],
     },
   ],

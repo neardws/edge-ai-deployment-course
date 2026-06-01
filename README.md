@@ -2,16 +2,16 @@
 
 This repository contains a public online course book and HTML slide deck for “端侧模型量化部署技术专题”.
 
-The course covers edge AI deployment framing, PTQ/QAT, large-model quantization, accuracy repair, compression and distillation, runtime deployment chains, VLM/Agent edge patterns, and case-based wrap-up.
+The course book expands the original outline into illustrated chapters with diagrams, code snippets, Ubuntu Server practice, Qwen small-model experiments, profiling templates, and references.
 
 ## Structure
 
 - `docs/`: Docusaurus course book chapters.
+- `labs/`: small scripts and templates for Ubuntu/Qwen practice.
 - `src/pages/slides.tsx`: reveal.js HTML slide deck.
-- `src/data/course.ts`: shared course agenda and slide/page data.
 - `static/img/`: public visual assets.
 
-The original Word outline is intentionally not committed. Public content is stored as Markdown and TypeScript data.
+The original Word outline is intentionally not committed. Public content is stored as Markdown, source code, and static assets.
 
 ## Local Development
 
