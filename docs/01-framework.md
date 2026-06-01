@@ -4,12 +4,17 @@ title: 端侧部署问题框架
 
 # 端侧部署问题框架
 
+## 建议学时
+
+4 学时。2 学时讲端侧部署场景和指标体系，1 学时讲 Ubuntu Server 与 Jetson 的硬件约束差异，1 学时做项目评估讨论。
+
 ## 学习目标
 
 - 建立端侧 AI 部署的整体判断框架。
 - 区分模型能力、设备资源、runtime、功耗散热、网络环境和产品体验之间的约束关系。
 - 明确量化、压缩、蒸馏和推理框架选型分别解决什么问题。
 - 为后续 Ubuntu/Qwen 实作建立统一的指标语言。
+- 为 Jetson 端侧实验建立功耗、温度和稳定性指标。
 
 ## 问题背景
 
@@ -44,6 +49,17 @@ flowchart TD
 | 稳定性 | 长时间运行是否退化 | 温度、功耗、降频、错误率 |
 | 工程成本 | 是否能维护和发布 | runtime 复杂度、模型更新、依赖大小、许可证 |
 
+## Ubuntu Server 与 Jetson 的差异
+
+| 维度 | Ubuntu Server + NVIDIA GPU | Jetson |
+| --- | --- | --- |
+| 主要价值 | 快速验证、调参、较高算力 | 接近真实边缘设备，能看功耗和热稳定性 |
+| 内存形态 | 独立显存常见 | 统一/共享内存更常见 |
+| 监控工具 | `nvidia-smi` | `tegrastats`、`nvpmodel` |
+| 主要风险 | GPU offload、driver/CUDA、服务化 | 功耗模式、温度、热降频、存储和内存限制 |
+
+课程实作会先在 Ubuntu Server 上建立 baseline，再迁移到 Jetson，观察同一模型在不同硬件约束下的表现。
+
 后续章节中的 PTQ、QAT、GPTQ、AWQ、SmoothQuant、KV Cache 量化、剪枝、蒸馏和 runtime 选型，都要回到这张表验证。
 
 ## 代码/命令示例
@@ -64,6 +80,7 @@ python3 --version
 ## 配套实作
 
 对应实作章节：[Ubuntu Server 与 NVIDIA GPU 环境](/docs/lab-ubuntu-nvidia)。
+Jetson 分支见：[Jetson 环境与 Qwen 迁移](/docs/lab-jetson-setup)。
 
 任务是建立环境基线：
 
@@ -90,6 +107,8 @@ python3 --version
 
 ## 参考资料
 
+- [40/52 学时教学安排](/docs/course-hours)
+- [资料对比与课程取舍](/docs/source-comparison)
 - [Ubuntu Server NVIDIA driver guide](https://ubuntu.com/server/docs/how-to/graphics/install-nvidia-drivers/)
 - [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/)
 - [NVIDIA Container Toolkit Install Guide](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html)

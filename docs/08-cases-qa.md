@@ -4,11 +4,16 @@ title: 案例串联与复盘
 
 # 案例串联与复盘
 
+## 建议学时
+
+4 学时。1 学时传统视觉模型，1 学时小型 LLM，1 学时 VLM/Agent，1 学时最终部署评估报告复盘。
+
 ## 学习目标
 
 - 把端侧部署问题框架、量化、精度修复、压缩蒸馏、runtime 和系统架构串成完整工程路径。
 - 能复盘传统视觉模型、小型 LLM、VLM 和 Hybrid Agent 的不同优化路线。
 - 能输出一份可执行的端侧部署评审清单。
+- 能比较 Ubuntu Server 和 Jetson 两条部署路径的收益与限制。
 
 ## 问题背景
 
@@ -38,6 +43,7 @@ flowchart TD
 | 小型 LLM | GGUF 量化、KV Cache、llama.cpp、API 服务 | 首 token、tokens/s、显存、输出质量 |
 | VLM | vision encoder、projector、LLM、视觉 token | OCR、小目标、空间关系、对齐质量 |
 | Hybrid Agent | 本地小模型、云端兜底、工具权限、routing | 隐私、失败恢复、权限控制、任务成功率 |
+| Jetson 边缘部署 | TensorRT、llama.cpp、功耗模式、温度、`tegrastats` | 端侧稳定性、功耗、热降频 |
 
 ## 代码/命令示例
 
@@ -68,6 +74,7 @@ flowchart TD
 - 当前 Qwen 小模型是否达到课程定义的“业务可用”。
 - 如果没有，是精度、速度、显存、runtime 还是服务化问题。
 - 下一轮应该换量化类型、换模型尺寸、调 runtime 参数，还是改变系统架构。
+- 如果迁移到 Jetson，主要差异来自性能、内存、功耗、温度还是模型质量。
 
 ## 验收结果
 
@@ -76,6 +83,7 @@ flowchart TD
 | 小型 LLM 复盘表 | 从目标、baseline、量化、runtime、profiling 到结论完整记录 |
 | 风险清单 | 至少覆盖精度、延迟、显存、许可证、模型来源和部署维护 |
 | 后续路线 | 能明确下一步是继续优化、换模型、换 runtime 还是端云协同 |
+| Ubuntu vs Jetson 对比 | 能说明两个硬件路径各自适合的部署场景 |
 
 ## 常见问题
 

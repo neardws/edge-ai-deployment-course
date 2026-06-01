@@ -4,12 +4,17 @@ title: 量化基础与 PTQ/QAT
 
 # 量化基础与 PTQ/QAT
 
+## 建议学时
+
+4 学时。2 学时讲量化数学和 PTQ/QAT 流程，1 学时讲工具链差异，1 学时结合 Qwen GGUF 和传统模型案例讨论。
+
 ## 学习目标
 
 - 掌握权重、激活、KV Cache 等对象为什么可以低精度表示。
 - 理解 FP32、FP16、BF16、INT8、INT4、NF4、FP8 的工程差异。
 - 区分 per-tensor、per-channel、per-group、symmetric、asymmetric、static、dynamic quantization。
 - 判断什么时候优先用 PTQ，什么时候需要 QAT 或后续补偿。
+- 理解量化和推理加速之间的关系：低比特不自动等于更快。
 
 ## 问题背景
 
@@ -64,6 +69,14 @@ PTQ 和 QAT 可以按项目阶段理解：
 
 在传统视觉模型中，ONNX Runtime、TensorFlow Lite、TensorRT 等工具链通常会提供 PTQ/QAT 或 INT8 校准流程；在 LLM 中，常见路线更多是 weight-only、AWQ/GPTQ/GGUF 等低比特权重量化，再结合 runtime 支持判断真实收益。
 
+## 与推理加速的关系
+
+量化能减少模型文件、权重内存和部分计算成本，但只有 runtime 和硬件支持对应 kernel 时，才可能带来真实加速。课堂中需要反复区分：
+
+- **压缩收益**：文件变小、显存/内存下降。
+- **计算收益**：低比特 kernel 或 Tensor Core/DLA 能真正执行。
+- **系统收益**：端到端延迟下降，且没有被 fallback、反量化、数据拷贝抵消。
+
 ## 代码/命令示例
 
 一个最小的线性量化示意，用来理解 scale 和 clipping，不用于生产部署：
@@ -86,6 +99,7 @@ print("abs error:", np.abs(x - x_hat))
 ## 配套实作
 
 对应实作章节：[Qwen GGUF 量化对比实验](/docs/lab-qwen-quantization)。
+推理加速验证见：[推理加速实验](/docs/lab-inference-acceleration)。
 
 实验会把抽象的 bit-width 和 group 策略落到 Qwen GGUF 文件上，观察 Q8、Q5、Q4 等模型变体在文件大小、显存、首 token 和 tokens/s 上的差异。
 

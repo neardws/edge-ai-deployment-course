@@ -4,12 +4,17 @@ title: 推理框架与部署链路
 
 # 推理框架与部署链路
 
+## 建议学时
+
+4 学时。2 学时讲通用部署链路和 runtime 选型，1 学时讲推理加速和 fallback，1 学时结合 Ubuntu/Jetson 实验日志讨论。
+
 ## 学习目标
 
 - 理解模型从训练环境走向端侧设备的完整部署链路。
 - 掌握 ONNX Runtime、TensorRT、TFLite、NCNN、MNN、Core ML、llama.cpp、ExecuTorch 和厂商 NPU SDK 的选型维度。
 - 识别 unsupported op、CPU fallback、低比特 kernel 缺失、dynamic shape 等性能陷阱。
 - 能用 llama.cpp 在 Ubuntu/NVIDIA 环境中完成本地推理和服务化验证。
+- 能解释 Jetson 与普通 Ubuntu Server 在 runtime、功耗和 profiling 上的差异。
 
 ## 问题背景
 
@@ -49,6 +54,23 @@ flowchart TD
 | GPU offload | 有多少层放到 GPU | `-ngl`、VRAM 变化 |
 | 服务化 | API 是否稳定可调用 | local server、HTTP smoke test |
 
+## 推理加速在部署链路中的位置
+
+量化只是部署链路的一部分。完整优化路径通常是：
+
+```mermaid
+flowchart LR
+  A[模型选择] --> B[量化/压缩]
+  B --> C[格式转换]
+  C --> D[图优化]
+  D --> E[Kernel 选择]
+  E --> F[GPU/DLA/CPU 调度]
+  F --> G[Profiling]
+  G --> H[服务化]
+```
+
+当性能不达标时，不能只继续降低 bit-width。更常见的瓶颈包括 unsupported op、CPU fallback、GPU offload 不充分、内存带宽、KV Cache、动态 shape 和温度降频。
+
 ## Runtime 选型地图
 
 | Runtime | 更适合 | 课程中的定位 |
@@ -61,6 +83,7 @@ flowchart TD
 | ExecuTorch | PyTorch 模型端侧部署 | PyTorch 生态端侧路线 |
 | Core ML | Apple 设备 | iOS/macOS 部署 |
 | MLC LLM | 跨平台 LLM 编译部署 | 移动端/浏览器/多后端探索 |
+| Jetson TensorRT | Jetson 上视觉和部分模型加速 | 边缘设备加速路线 |
 
 选型时不要先问“哪个框架最快”，而要先问目标设备、模型类型、低比特格式、算子覆盖、调试能力和团队维护成本。
 
@@ -91,6 +114,8 @@ cmake --build build --config Release -j
 对应实作章节：
 
 - [Qwen 基线推理](/docs/lab-qwen-baseline)
+- [推理加速实验](/docs/lab-inference-acceleration)
+- [Jetson 环境与 Qwen 迁移](/docs/lab-jetson-setup)
 - [本地 OpenAI-compatible 服务](/docs/lab-local-service)
 
 实作重点不是追求最高速度，而是把 runtime 行为解释清楚：模型是否加载成功、GPU 是否参与、服务是否可调、日志是否显示异常 fallback。
@@ -113,6 +138,8 @@ cmake --build build --config Release -j
 
 ## 参考资料
 
+- [推理加速基础](/docs/inference-acceleration)
+- [Jetson 部署基础](/docs/jetson-deployment)
 - [llama.cpp build docs](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md)
 - [Qwen llama.cpp 本地运行指南](https://qwen.readthedocs.io/en/v2.5/run_locally/llama.cpp.html)
 - [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/)

@@ -4,12 +4,17 @@ title: 大模型量化与 KV Cache
 
 # 大模型量化与 KV Cache
 
+## 建议学时
+
+4 学时。2 学时讲 LLM 量化方法，1 学时讲 KV Cache 和长上下文，1 学时结合 Qwen/llama.cpp 实验设计讨论。
+
 ## 学习目标
 
 - 理解 LLM/VLM 为什么不能简单套用传统 INT8 PTQ/QAT 思路。
 - 掌握 GPTQ、AWQ、SmoothQuant、LLM.int8() 和 KV Cache 量化的基本思想。
 - 能把 weight-only quantization、activation outlier、group size、上下文长度和 runtime 支持联系起来判断。
 - 能设计 Qwen 小模型的低比特对比实验。
+- 能解释 KV Cache、上下文长度和 Jetson 共享内存对部署的影响。
 
 ## 问题背景
 
@@ -69,6 +74,8 @@ LLM 推理的显存可以粗略拆成三块：
 
 当业务从单轮短问答变成长上下文、多轮对话或 RAG，KV Cache 会快速变成核心变量。后续 profiling 时要单独做 ctx-size 对比实验，不能只比较模型文件大小。
 
+在 Jetson 上，KV Cache 还会和统一/共享内存、功耗模式、温度共同影响稳定性。因此同一个 ctx-size 在服务器上可用，不代表在 Jetson 上适合长期运行。
+
 ## 代码/命令示例
 
 使用 llama.cpp 跑同一个 prompt，先让不同量化模型的测试条件保持一致：
@@ -96,6 +103,7 @@ LLM 推理的显存可以粗略拆成三块：
 
 - [Qwen 基线推理](/docs/lab-qwen-baseline)
 - [Qwen GGUF 量化对比实验](/docs/lab-qwen-quantization)
+- [推理加速实验](/docs/lab-inference-acceleration)
 - [Profiling 与结果记录](/docs/lab-profiling)
 
 实作要验证三件事：

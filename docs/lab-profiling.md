@@ -4,11 +4,16 @@ title: Profiling 与结果记录
 
 # Profiling 与结果记录
 
+## 建议学时
+
+2 学时。1 学时讲指标和记录规范，1 学时分析 Ubuntu Server 与 Jetson 的实验日志。
+
 ## 学习目标
 
 - 把端侧部署结果拆成质量、速度、显存、功耗/温度和稳定性。
 - 区分首 token、prefill、decode 和稳定 tokens/s。
 - 建立可复查的实验记录模板。
+- 记录 Jetson 上的温度、功耗模式和 `tegrastats` 输出。
 
 ## 问题背景
 
@@ -39,6 +44,7 @@ flowchart TD
 | 峰值 VRAM | 推理过程 GPU 显存高点 | 结合 `nvidia-smi` |
 | 输出质量 | 是否满足任务 | 固定 prompt + 备注 |
 | 失败日志 | fallback、OOM、格式错误 | 保存原始日志 |
+| 温度/功耗 | Jetson 或边缘设备是否稳定 | `tegrastats`、功耗模式、热降频 |
 
 ## 实验设计
 
@@ -49,6 +55,7 @@ flowchart TD
 | 量化格式对比 | 模型基座、prompt、ctx、`-ngl` | Q8/Q5/Q4 | 文件、显存、速度、质量 |
 | 上下文长度对比 | 模型文件、prompt、`-ngl` | ctx 1024/2048/4096 | KV Cache 和首 token |
 | 服务化 smoke test | 模型文件、ctx、采样参数 | CLI vs server | API 可用性和额外开销 |
+| Jetson 对比 | 模型、prompt、ctx | Ubuntu Server vs Jetson | 速度、内存、温度、功耗 |
 
 如果有时间，可以加 `llama-bench` 作为更标准化的 benchmark，但课堂主线仍以“业务 prompt + 日志记录”为主，因为最终要回答模型是否满足实际任务。
 
@@ -58,6 +65,12 @@ flowchart TD
 
 ```bash
 watch -n 0.5 nvidia-smi
+```
+
+Jetson 上使用：
+
+```bash
+tegrastats --interval 1000 | tee ~/edge-ai-lab/logs/tegrastats.txt
 ```
 
 保存 profiling 记录模板：
@@ -82,9 +95,10 @@ cp labs/templates/profiling-results.md ~/edge-ai-lab/results/profiling-results.m
 
 建议结果表：
 
-| 模型 | 量化 | ctx | 文件大小 | 峰值 VRAM | 首 token | tokens/s | 质量备注 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 |
+| 硬件 | 模型 | 量化 | ctx | 文件大小 | 峰值内存 | 首 token | tokens/s | 温度/功耗 | 质量备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Ubuntu Server | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 |
+| Jetson | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 | 待填 |
 
 ## 验收结果
 
@@ -107,3 +121,4 @@ cp labs/templates/profiling-results.md ~/edge-ai-lab/results/profiling-results.m
 - [NVIDIA Nsight Systems](https://developer.nvidia.com/nsight-systems)
 - [MLPerf Inference](https://mlcommons.org/benchmarks/inference/)
 - [NVIDIA CUDA Installation Guide for Linux](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/)
+- [NVIDIA Jetson documentation](https://docs.nvidia.com/jetson/)
