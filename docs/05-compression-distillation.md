@@ -119,6 +119,14 @@ flowchart LR
 
 剪枝的基本思想是移除“不重要”的参数或结构。
 
+“不重要”需要一个可计算的评分。最简单的是幅值准则：移除 $\lvert w \rvert$ 最小的权重。更精确的是一阶泰勒准则，直接估计移除某个权重对损失的影响：
+
+$$
+\Delta L(w) \approx \left| w \cdot \frac{\partial L}{\partial w} \right|
+$$
+
+幅值小但梯度大的权重，按泰勒准则不应该删——两个准则的差异正是“重要性”定义的差异。LLM 时代的代表方法（如 Wanda）用权重幅值乘对应输入激活范数（$\lvert w \rvert \cdot \lVert x \rVert$）评分，无需梯度，思想与 AWQ 的“按激活找重要权重”同源。
+
 剪枝分为非结构化和结构化两类。
 
 ### 非结构化剪枝
@@ -136,6 +144,21 @@ flowchart LR
 - 参数量减少不等于延迟减少。
 - 稀疏格式需要 kernel 支持。
 - 端侧设备更关注真实 latency、功耗和内存，而不是论文中的稀疏率。
+
+PyTorch 自带的剪枝接口可以直接做最小演示：
+
+```python
+import torch
+import torch.nn.utils.prune as prune
+
+layer = torch.nn.Linear(896, 896)
+prune.l1_unstructured(layer, name="weight", amount=0.5)  # 按幅值剪掉 50%
+
+sparsity = (layer.weight == 0).float().mean()
+print(f"sparsity: {sparsity:.2%}")
+```
+
+运行后用同样输入对比剪枝前后的耗时。在普通 CPU/GPU 上通常观察不到加速——权重只是被置零，矩阵形状没有变。这正是“非结构化稀疏需要专用 kernel 才能兑现速度”的最直接证据。
 
 ### 结构化剪枝
 
@@ -167,6 +190,14 @@ LLM 中常见讨论包括：
 低秩分解把一个大矩阵近似成两个或多个较小矩阵的乘积。
 
 直觉上，如果权重矩阵中有冗余结构，就可以用更低维表示近似。
+
+数学工具是奇异值分解（SVD）。任何矩阵 $W \in \mathbb{R}^{d \times k}$ 都可以分解为 $W = U\Sigma V^\top$，按奇异值大小取前 $r$ 个截断：
+
+$$
+W \approx U_r \Sigma_r V_r^\top, \qquad \text{参数量从 } dk \text{ 降为 } r(d + k)
+$$
+
+Eckart-Young 定理保证这是所有秩 $r$ 近似中 Frobenius 误差最小的，误差等于被丢弃奇异值的平方和开根号。奇异值衰减快的矩阵适合低秩近似，衰减慢的不适合——对一层权重算一次奇异值谱（`torch.linalg.svdvals`），就能判断这条路线在该层是否可行。
 
 适用位置：
 
@@ -224,6 +255,22 @@ flowchart TD
   E --> F
   F --> G["更新学生模型"]
 ```
+
+经典的 logit 蒸馏损失是两项加权：
+
+$$
+L = (1-\lambda)\,CE\big(y,\, p_s\big) + \lambda\, T^2\, KL\big(p_t^{(T)} \,\|\, p_s^{(T)}\big)
+$$
+
+其中 $CE$ 是学生对真实标签 $y$ 的交叉熵，$KL$ 是教师分布 $p_t$ 和学生分布 $p_s$ 在温度 $T$ 下软化后的散度，$\lambda$ 平衡两项。软化分布的定义是：
+
+$$
+p_i^{(T)} = \frac{\exp(z_i / T)}{\sum_j \exp(z_j / T)}
+$$
+
+$T > 1$ 放大非最大类的概率，迫使学生学习教师“次优选项之间的相对关系”——这是蒸馏比硬标签训练多出来的信息。$T^2$ 因子补偿温度软化造成的梯度缩小。
+
+LLM 蒸馏经常不走 logit 路线，而是直接拿教师生成的文本做 SFT（sequence-level 蒸馏），此时上面的公式退化为普通交叉熵。两条路线的共同前提不变：教师输出质量决定学生上限。
 
 蒸馏可以用于：
 
@@ -492,6 +539,27 @@ tegrastats --interval 1000 --logfile logs/jetson-compression-choice.log
 **端云协同会不会偏离端侧部署主题？**
 
 不会。端侧部署的工程目标是满足业务约束，不是把所有计算强行放在设备上。
+
+## 作业
+
+### 阅读题
+
+1. 阅读 Distilling the Knowledge in a Neural Network（arXiv 1503.02531），说明温度 $T$ 和 $T^2$ 因子各自的作用。
+
+### 检查题
+
+1. 一个 $896 \times 896$ 的线性层做秩 64 的 SVD 截断，参数量变为原来的多少？这个近似在什么条件下质量可以接受？
+2. 幅值剪枝和一阶泰勒剪枝可能给出相反的结论吗？用一个两参数的例子说明。
+3. 判断并说明理由：非结构化剪枝 50% 后，模型在 llama.cpp 上推理速度会提高约一倍。
+
+### 实验题
+
+1. 运行本章 torch prune 演示，对比剪枝前后同一输入的输出差异和耗时，解释为什么没有加速。
+2. 对任意一个开源模型的某层权重计算奇异值谱（`torch.linalg.svdvals`），观察衰减曲线，判断该层是否适合低秩近似。
+
+### 讨论题
+
+1. “先蒸馏后量化”和“先量化后蒸馏补偿”的成本结构有什么不同？课程场景下哪个更现实？
 
 ## 参考资料
 

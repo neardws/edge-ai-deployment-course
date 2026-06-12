@@ -90,6 +90,16 @@ VLM 量化不能只看语言模型部分。
 
 如果 VLM 任务涉及 OCR、小目标、图表理解或空间关系，低比特量化后的质量下降可能比纯文本任务更难通过主观观察发现。课程要求保留失败样例。
 
+视觉输入的成本可以量化。图像经过 vision encoder 后变成视觉 token 拼进上下文，数量近似为：
+
+$$
+n_{vis} \approx \frac{H \times W}{p^2 \times m}
+$$
+
+$H \times W$ 是输入分辨率，$p$ 是 patch 大小，$m$ 是 projector 的 token 合并因子（例如 Qwen2-VL 把每 2×2 个 patch 合并成 1 个 token，$m = 4$）。一张 1024×1024 的图按 $p = 14$、$m = 4$ 计算约 1300 个 token——相当于一篇短文的 prefill 成本，而且全部进入 KV Cache。
+
+这个公式解释了两个工程现象：分辨率是 VLM 延迟最直接的旋钮；多图或视频输入会很快撑爆端侧的上下文和内存预算。
+
 ## Agent 系统链路
 
 Agent 的端侧部署更像一个受控系统，而不是一个单模型推理任务。
@@ -214,6 +224,22 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
+llama.cpp 的多模态入口是 mtmd 工具。VLM 的 GGUF 由两个文件组成：语言模型主体和 mmproj（vision encoder 加 projector）：
+
+```bash
+mkdir -p ~/edge-ai-lab/vlm ~/edge-ai-lab/logs
+
+./build/bin/llama-mtmd-cli \
+  -m models/qwen/Qwen2-VL-2B-Instruct-Q4_K_M.gguf \
+  --mmproj models/qwen/mmproj-Qwen2-VL-2B-Instruct-f16.gguf \
+  --image ~/edge-ai-lab/vlm/test-chart.png \
+  -p "用三句话描述这张图表的主要结论。" \
+  -ngl 99 \
+  2>&1 | tee ~/edge-ai-lab/logs/vlm-smoke.txt
+```
+
+注意 mmproj 文件通常保持 f16，这正是“projector 谨慎量化”在工具链里的体现。多模态工具名和 flag 随版本变化较快（旧版本叫 llama-llava-cli），以当前版本 `--help` 为准。
+
 Agent 工具注册建议先用静态白名单：
 
 ```yaml
@@ -319,6 +345,23 @@ tools:
 - **把端侧当成全离线**：很多产品更适合端云协同，而不是强行全端侧。
 - **没有失败恢复**：工具调用失败、网络失败、输出格式错误都需要恢复策略。
 - **把 demo 当产品**：一次成功调用不能证明权限、状态和日志策略可用。
+
+## 作业
+
+### 阅读题
+
+1. 查阅 Qwen2-VL 或同类开源 VLM 的模型卡，找出它的 patch 大小和视觉 token 合并方式，验证本章公式的参数取值。
+
+### 检查题
+
+1. 用视觉 token 公式估算 512×512 和 1024×1024 输入的 token 数，说明分辨率对 prefill 成本的影响是几倍量级。
+2. VLM 三个组件（vision encoder、projector、LLM）中，为什么 projector 最不建议激进量化？
+3. Agent 工具白名单中 `run_shell` 被设为 blocked。从权限边界角度说明理由，并给出允许它的最小安全条件。
+
+### 实验题
+
+1. 用 `llama-mtmd-cli` 跑通一次本地 VLM 推理，从启动日志记录视觉 token 数、首 token 延迟和总耗时，与等长纯文本 prompt 对比。
+2. 用案例模板拆解一个你身边的 VLM 或 Agent 场景，标注端侧/云端分工、延迟预算和工具权限表。
 
 ## 参考资料
 
