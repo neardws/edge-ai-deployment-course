@@ -114,6 +114,32 @@ flowchart TD
 - `zero_point`：浮点零点映射到整数空间的位置。
 - `qmin/qmax`：低比特整数能表示的范围。
 
+非对称（affine）量化的映射和反映射是：
+
+$$
+q = \mathrm{clamp}\left(\mathrm{round}\left(\frac{x}{s}\right) + z,\; q_{\min},\; q_{\max}\right), \qquad \hat{x} = s\,(q - z)
+$$
+
+其中 scale 和 zero-point 由数值范围决定：
+
+$$
+s = \frac{x_{\max} - x_{\min}}{q_{\max} - q_{\min}}, \qquad z = \mathrm{round}\left(q_{\min} - \frac{x_{\min}}{s}\right)
+$$
+
+对称量化取 $z = 0$，scale 用最大绝对值：
+
+$$
+s = \frac{\max|x|}{2^{b-1} - 1}
+$$
+
+$b$ 是 bit 数。clipping 范围内，舍入最多把每个值移动半个格点，即 $|x - \hat{x}| \le s/2$。把舍入误差近似看成均匀分布噪声，方差是：
+
+$$
+\sigma^2 = \frac{s^2}{12}
+$$
+
+这组公式解释了量化的基本矛盾：数值范围（$s$ 的分子）越大，每个格点越粗，所有普通值的噪声方差按 $s^2$ 放大——这正是 outlier 危险的数学原因。
+
 对称量化常用于权重。
 
 它让零点固定在 0 附近，实现简单，很多 kernel 也更友好。
@@ -247,11 +273,47 @@ llama.cpp 生态中，已有 GGUF 文件通常是最适合教学的入口。
   -ngl 99
 ```
 
+传统模型（CNN、encoder 类）路线常用 ONNX Runtime 的静态量化接口。它的价值在于让“校准集”从概念变成代码里显式存在的对象：
+
+```python
+from onnxruntime.quantization import CalibrationDataReader, QuantType, quantize_static
+
+class Reader(CalibrationDataReader):
+    def __init__(self, samples):
+        self.samples = iter(samples)  # 每条形如 {"input": np.ndarray}
+
+    def get_next(self):
+        return next(self.samples, None)
+
+quantize_static(
+    "model-fp32.onnx",
+    "model-int8.onnx",
+    calibration_data_reader=Reader(samples),
+    weight_type=QuantType.QInt8,
+)
+```
+
+校准样本走不到的输入模式，量化范围就没有覆盖——这与上一节校准集设计的要求一一对应。
+
 ## QAT 工作流
 
 QAT 会在训练阶段模拟量化误差。
 
 它通常使用 fake quantization：前向传播中模拟低比特量化，反向传播仍借助浮点梯度更新。
+
+fake quantization 的前向传播是：
+
+$$
+\tilde{x} = s \cdot \mathrm{clamp}\left(\mathrm{round}\left(\frac{x}{s}\right),\; q_{\min},\; q_{\max}\right)
+$$
+
+问题在于 round 的导数几乎处处为 0，梯度无法穿过量化节点。QAT 用 straight-through estimator（STE）近似：反向传播时把 round 当作恒等函数，
+
+$$
+\frac{\partial L}{\partial x} \approx \frac{\partial L}{\partial \tilde{x}} \cdot \mathbf{1}_{\,q_{\min} \le x/s \le q_{\max}}
+$$
+
+即 clipping 范围内梯度原样通过，范围外梯度为 0。STE 在数学上是一个有偏近似，但它让模型在训练中“带着量化噪声”更新参数。
 
 QAT 的价值在于让模型参数提前适应量化噪声。
 
@@ -288,6 +350,14 @@ QAT 的价值在于让模型参数提前适应量化噪声。
 - 使用 SmoothQuant 等方法迁移激活 outlier 压力。
 - 在 LLM 中用 LLM.int8()、AWQ、GPTQ 等更专门的方法。
 
+clip 阈值的选择可以形式化。给定候选阈值 $t$，把数值截断到 $[-t, t]$ 再做 $b$ bit 量化，总误差由两部分组成：
+
+$$
+E(t) = \underbrace{\mathbb{E}\big[(x - \hat{x})^2 \cdot \mathbf{1}_{|x| \le t}\big]}_{\text{舍入误差}} + \underbrace{\mathbb{E}\big[(|x| - t)^2 \cdot \mathbf{1}_{|x| > t}\big]}_{\text{截断误差}}
+$$
+
+$t$ 越大，scale 越粗、舍入误差越大，但截断误差越小。MSE 校准就是在候选阈值上最小化 $E(t)$；另一类做法是最小化量化前后分布的 KL 散度（TensorRT 的 entropy calibration）。两类目标都要用校准数据估计分布——这就是“校准集质量”直接进入数学目标的位置。
+
 教学时可以用一个简单检查脚本观察分布：
 
 ```python
@@ -301,6 +371,27 @@ print("mean/std:", x.mean(), x.std())
 ```
 
 如果 `max` 远大于 `p99.9`，就要警惕 outlier 对 scale 的影响。
+
+下面这个对比实验可以直接运行，观察 max 校准和 percentile 校准的误差差异：
+
+```python
+import numpy as np
+
+rng = np.random.default_rng(0)
+x = np.concatenate([rng.normal(0.0, 0.1, 100000), [4.0]])  # 主体分布 + 一个 outlier
+
+def quant_mse(x, t):
+    s = t / 127
+    q = np.clip(np.round(np.clip(x, -t, t) / s), -128, 127)
+    return np.mean((x - q * s) ** 2)
+
+t_max = np.abs(x).max()
+t_clip = np.percentile(np.abs(x), 99.9)
+print("max 校准 MSE:", quant_mse(x, t_max))
+print("p99.9 校准 MSE:", quant_mse(x, t_clip))
+```
+
+把脚本保存为 `~/edge-ai-lab/quant/calib_compare.py` 运行。改变 outlier 的大小和数量，可以直观看到 clipping 在“牺牲一个值”和“保护整个主体”之间的交换。
 
 ## 量化与推理加速的关系
 
@@ -404,6 +495,29 @@ Jetson 实作重点：
 
 不应该。先确认 baseline、prompt/template、评估集、runtime 和量化格式，再考虑训练式补偿。
 
+## 作业
+
+### 阅读题
+
+1. 阅读 PyTorch Quantization 文档中 QAT 相关部分，说明 observer 和 fake-quant 模块各自的职责。
+2. 阅读 ONNX Runtime 量化文档，整理静态量化和动态量化在 API 与适用场景上的差异。
+
+### 检查题
+
+1. 写出对称 INT8 量化的 scale 公式，并解释为什么对称量化常用于权重、非对称量化常用于激活。
+2. 一个 tensor 的数值主体在 $[-0.5, 0.5]$，但个别值达到 8.0。用舍入噪声方差 $\sigma^2 = s^2/12$ 估算 max 校准相对“按 0.5 截断校准”把主体噪声方差放大了多少倍。
+3. 判断并说明理由：QAT 训练完成后，部署时就不再需要量化 runtime 的支持。
+
+### 实验题
+
+1. 运行本章 max vs percentile 校准对比脚本，改变 outlier 的大小和数量，记录两种校准的 MSE 变化，总结你观察到的规律。
+2. 用 `llama-quantize` 从同一份 F16 GGUF 生成 Q4_K_M，在相同 prompt 下对比 Q4 与 F16 的输出质量和速度，把结果填入本章 Qwen 量化对比表。
+
+### 讨论题
+
+1. 校准集和评估集都来自真实业务数据，为什么仍然必须分开维护、分开汇报？
+2. STE 在数学上是有偏的梯度近似，为什么 QAT 在实践中仍然有效？
+
 ## 参考资料
 
 - [PyTorch Quantization](https://pytorch.org/docs/stable/quantization.html)
@@ -416,3 +530,4 @@ Jetson 实作重点：
 - [GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers](https://arxiv.org/abs/2210.17323)
 - [SmoothQuant: Accurate and Efficient Post-Training Quantization for Large Language Models](https://arxiv.org/abs/2211.10438)
 - [LLM.int8(): 8-bit Matrix Multiplication for Transformers at Scale](https://arxiv.org/abs/2208.07339)
+- [Estimating or Propagating Gradients Through Stochastic Neurons（STE 出处）](https://arxiv.org/abs/1308.3432)

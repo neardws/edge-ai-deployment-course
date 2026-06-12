@@ -175,6 +175,51 @@ LLM 的输出不是单一分类标签。
 - 是否出现重复、幻觉、拒答或中断。
 - 是否在低比特模型中更频繁失败。
 
+规则检查之外，还有两个可以自动计算的退化指标。
+
+第一个是困惑度（perplexity）。给定评估文本的 token 序列 $x_1, \dots, x_N$：
+
+$$
+\mathrm{PPL} = \exp\left(-\frac{1}{N}\sum_{i=1}^{N} \log p\left(x_i \mid x_{<i}\right)\right)
+$$
+
+PPL 衡量模型对真实文本的“惊讶程度”，越低越好。量化前后的 PPL 差值是低比特退化最常用的数值证据。PPL 对评估文本敏感，对比时必须用同一份文本和同一上下文长度。
+
+第二个是输出分布对比。对同一输入，比较原模型分布 $p$ 和量化模型分布 $q$ 的 KL 散度：
+
+$$
+D_{KL}(p \,\|\, q) = \sum_{v \in V} p(v)\,\log\frac{p(v)}{q(v)}
+$$
+
+KL 散度不需要参考答案，能在没有标注的情况下度量“量化让模型偏离原模型多少”。它的逐层版本就是敏感层分析的数学基础。
+
+llama.cpp 中测 PPL 的命令：
+
+```bash
+mkdir -p ~/edge-ai-lab/quality/logs
+
+./build/bin/llama-perplexity \
+  -m models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf \
+  -f ~/edge-ai-lab/quality/eval-zh.txt \
+  --chunks 32 \
+  -ngl 99 \
+  2>&1 | tee ~/edge-ai-lab/quality/logs/ppl-q4km.log
+```
+
+`-f` 指定评估文本，`--chunks` 控制评估块数，块数越多越稳定也越慢。对 Q8_0 和 F16 重复同样命令，记录三个 PPL 值。
+
+任务级评估用 lm-evaluation-harness。中文场景优先选择题型任务，它用 logits 比较选项，不受采样随机性影响：
+
+```bash
+lm_eval --model hf \
+  --model_args pretrained=Qwen/Qwen2.5-1.5B-Instruct \
+  --tasks ceval-valid,cmmlu \
+  --batch_size 8 \
+  2>&1 | tee ~/edge-ai-lab/quality/logs/lm-eval-base.log
+```
+
+`--model hf` 走 Transformers 路线，可以直接评估 GPTQ/AWQ/bitsandbytes 产物。GGUF 模型可以通过 lm-eval 的 OpenAI-compatible 后端连本地 `llama-server` 评估，或者直接用上面的 `llama-perplexity` 做对比。
+
 ## 误差归因表
 
 量化后失败样例要归类，而不是只写“效果不好”。
@@ -213,6 +258,25 @@ calibration-v2.jsonl  加入长上下文、JSON、部署日志和课程术语
 
 如果分布仍不匹配，更多样本可能只是更稳定地得到错误统计。
 
+GGUF 路线中，校准集重构有一个直接的工程落点：重要性矩阵（imatrix）。用重构后的校准文本重新统计，再用它重新量化：
+
+```bash
+./build/bin/llama-imatrix \
+  -m models/qwen/qwen2.5-1.5b-instruct-f16.gguf \
+  -f ~/edge-ai-lab/quality/calibration-v2.txt \
+  -o models/qwen/qwen2.5-1.5b-v2.imatrix \
+  2>&1 | tee ~/edge-ai-lab/quality/logs/imatrix-v2.log
+
+./build/bin/llama-quantize \
+  --imatrix models/qwen/qwen2.5-1.5b-v2.imatrix \
+  models/qwen/qwen2.5-1.5b-instruct-f16.gguf \
+  models/qwen/qwen2.5-1.5b-instruct-q4km-v2.gguf \
+  Q4_K_M \
+  2>&1 | tee ~/edge-ai-lab/quality/logs/quantize-v2.log
+```
+
+对比 v1/v2 两个量化文件在同一评估集上的 PPL 和失败样例，“校准集重构是否有效”就有了数值证据，而不是主观感觉。
+
 ## 敏感层分析
 
 敏感层分析的目标是找到“哪些层不适合低比特”。
@@ -227,6 +291,14 @@ calibration-v2.jsonl  加入长上下文、JSON、部署日志和课程术语
 4. 如果工具支持，尝试不同量化类型或部分层更高精度。
 5. 记录质量改善是否值得内存和速度成本。
 
+逐层误差可以形式化。对同一校准输入，记第 $l$ 层在原模型的输出为 $h_l$、量化模型的输出为 $\hat{h}_l$：
+
+$$
+e_l = \frac{\big\|h_l - \hat{h}_l\big\|_2^2}{\big\|h_l\big\|_2^2} \qquad \text{或} \qquad \cos\big(h_l,\, \hat{h}_l\big)
+$$
+
+相对误差突然增大、或余弦相似度突然下降的层，就是敏感层候选。
+
 敏感层修复常用方法：
 
 - mixed precision：关键层保留 FP16/INT8。
@@ -234,6 +306,20 @@ calibration-v2.jsonl  加入长上下文、JSON、部署日志和课程术语
 - 调整 group size。
 - 对 embedding、lm_head、norm、attention 或 MLP 中敏感模块采用不同策略。
 - 直接回退到更高量化等级，例如 Q4 到 Q5 或 Q8。
+
+llama.cpp 路线中，“部分张量回退”有现成开关：
+
+```bash
+./build/bin/llama-quantize \
+  --output-tensor-type f16 \
+  --token-embedding-type f16 \
+  models/qwen/qwen2.5-1.5b-instruct-f16.gguf \
+  models/qwen/qwen2.5-1.5b-instruct-q4km-protect.gguf \
+  Q4_K_M \
+  2>&1 | tee ~/edge-ai-lab/quality/logs/quantize-protect.log
+```
+
+这条命令把输出头和 embedding 保留在 f16，其余张量仍用 Q4_K_M，是 mixed precision 最容易上手的版本。对比 protect 变体和普通 Q4_K_M 的 PPL、文件大小和速度，就是一次最小的敏感层实验。
 
 ## Outlier 处理
 
@@ -483,6 +569,28 @@ tegrastats --interval 1000 --logfile logs/jetson-qwen-quality.log
 
 不一定。更大模型会增加内存、延迟、功耗和分发成本。应该先确认小模型问题来源。
 
+## 作业
+
+### 阅读题
+
+1. 阅读 lm-evaluation-harness 文档，说明为什么选择题任务比自由生成任务更适合量化前后对比。
+2. 阅读 llama.cpp quantize README 中关于 `--output-tensor-type`、`--token-embedding-type` 等开关的说明，列出可以单独控制精度的张量类型。
+
+### 检查题
+
+1. 写出 PPL 的定义式，并解释为什么对比量化前后 PPL 时必须固定评估文本和上下文长度。
+2. KL 散度对比和 `must_include` 规则检查各自能发现什么问题、各自会漏掉什么问题？
+3. 判断并说明理由：Q4 模型在 Jetson 上输出异常而在服务器上正常，说明 Q4 的量化质量不达标。
+
+### 实验题
+
+1. 用 `llama-perplexity` 测 F16、Q8_0、Q4_K_M 三个档位的 PPL，记录差值并与文件大小放在同一张表里，判断哪一档是质量与体积的最优折中。
+2. 生成“保护 embedding 和输出头”的 Q4_K_M 变体，对比普通 Q4_K_M 的 PPL、文件大小和 tokens/s，把结果填入本章实验记录模板。
+
+### 讨论题
+
+1. 修复手段选择表中，“重构校准集”为什么排在“QAT/LoRA”之前？什么证据会让你直接跳到训练式补偿？
+
 ## 参考资料
 
 - [AWQ paper](https://arxiv.org/abs/2306.00978)
@@ -492,3 +600,5 @@ tegrastats --interval 1000 --logfile logs/jetson-qwen-quality.log
 - [Qwen llama.cpp 量化指南](https://qwen.readthedocs.io/en/v2.5/quantization/llama.cpp.html)
 - [Hugging Face Evaluate](https://huggingface.co/docs/evaluate/index)
 - [OpenAI Evals](https://github.com/openai/evals)
+- [lm-evaluation-harness](https://github.com/EleutherAI/lm-evaluation-harness)
+- [llama.cpp perplexity 工具](https://github.com/ggml-org/llama.cpp/tree/master/tools/perplexity)
