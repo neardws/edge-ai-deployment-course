@@ -98,12 +98,11 @@ GGUF 中的 Q4_K_M, Q5_K_M, Q8_0 等格式不是简单的“整个模型统一 i
 
 Scale 是浮点值和整数值之间的缩放系数。对称量化中, 常见形式是:
 
-```text
-q = round(x / scale)
-x_hat = q * scale
-```
+$$
+q = \mathrm{round}\left(\frac{x}{s}\right), \qquad \hat{x} = q \cdot s
+$$
 
-其中 `x` 是原始浮点值, `q` 是整数近似, `x_hat` 是反量化后的近似值。
+其中 $x$ 是原始浮点值, $s$ 是 scale, $q$ 是整数近似, $\hat{x}$ 是反量化后的近似值。
 
 ### Zero-point
 

@@ -1,4 +1,6 @@
 import {themes as prismThemes} from 'prism-react-renderer';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
@@ -29,6 +31,8 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/neardws/edge-ai-deployment-course/tree/main/',
+          remarkPlugins: [remarkMath],
+          rehypePlugins: [rehypeKatex],
         },
         blog: false,
         theme: {
@@ -41,6 +45,10 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
+
+  stylesheets: [
+    {href: '/vendor/katex/katex.min.css', type: 'text/css'},
+  ],
 
   themes: ['@docusaurus/theme-mermaid'],
 
