@@ -241,6 +241,37 @@
   line-height: 1.72;
 }
 
+:global([data-theme='dark']) .hero {
+  background:
+    linear-gradient(180deg, rgba(11, 18, 24, 0.94), rgba(15, 26, 34, 0.97)),
+    #0b1218;
+}
+
+:global([data-theme='dark']) .heroCopy h1,
+:global([data-theme='dark']) .heroCopy p {
+  color: var(--course-ink);
+}
+
+:global([data-theme='dark']) .courseStats div {
+  border-top-color: rgba(76, 201, 217, 0.34);
+}
+
+:global([data-theme='dark']) .heroVisual::before {
+  background: linear-gradient(90deg, #0b1218 0%, rgba(11, 18, 24, 0) 100%);
+}
+
+:global([data-theme='dark']) .pipelinePanel {
+  border-color: rgba(76, 201, 217, 0.24);
+  background: rgba(14, 27, 36, 0.9);
+  box-shadow: var(--course-shadow);
+}
+
+:global([data-theme='dark']) .metrics div {
+  background:
+    linear-gradient(180deg, rgba(20, 35, 45, 0.96), rgba(14, 25, 33, 0.96)),
+    var(--ifm-background-surface-color);
+}
+
 @media screen and (max-width: 996px) {
   .hero,
   .summaryGrid,

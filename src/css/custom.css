@@ -17,6 +17,11 @@
   --course-amber: #d89024;
   --course-surface: #f7fbfd;
   --course-shadow: 0 18px 60px rgba(16, 33, 43, 0.08);
+  --course-secondary-bg: #edf3f6;
+  --course-secondary-bg-hover: #e2ecef;
+  --course-secondary-border: #e5edf1;
+  --course-secondary-border-hover: #d7e4e9;
+  --course-secondary-text: var(--course-ink);
   --ifm-navbar-height: 64px;
   --ifm-global-radius: 8px;
   --ifm-button-border-radius: 8px;
@@ -43,6 +48,11 @@
   --course-amber: #ffc56a;
   --course-surface: #101820;
   --course-shadow: 0 18px 60px rgba(0, 0, 0, 0.26);
+  --course-secondary-bg: #182832;
+  --course-secondary-bg-hover: #213744;
+  --course-secondary-border: #2f4c5a;
+  --course-secondary-border-hover: #3f6373;
+  --course-secondary-text: #f4f8fb;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
@@ -90,15 +100,15 @@ body {
 }
 
 .button--secondary:not(.button--outline) {
-  border-color: #e5edf1;
-  background: #edf3f6;
-  color: var(--course-ink);
+  border-color: var(--course-secondary-border);
+  background: var(--course-secondary-bg);
+  color: var(--course-secondary-text);
 }
 
 .button--secondary:not(.button--outline):hover {
-  border-color: #d7e4e9;
-  background: #e2ecef;
-  color: var(--course-ink);
+  border-color: var(--course-secondary-border-hover);
+  background: var(--course-secondary-bg-hover);
+  color: var(--course-secondary-text);
 }
 
 .markdown h1,
