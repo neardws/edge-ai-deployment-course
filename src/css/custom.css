@@ -145,9 +145,10 @@ body {
 }
 
 .markdown table {
-  display: table;
-  width: 100%;
-  overflow: hidden;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
   border: 1px solid var(--course-line);
   border-radius: 8px;
   font-size: 15px;
@@ -194,11 +195,101 @@ body {
 }
 
 .theme-doc-markdown {
-  max-width: 780px;
+  max-width: 960px;
 }
 
 .theme-doc-toc-desktop {
   padding-left: 1rem;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1439px) {
+  .row:has(> .col > .theme-doc-toc-desktop) > .col:first-child,
+  .row:has(> .col > .theme-doc-toc-desktop) > [class*='docItemCol'] {
+    flex-basis: 100%;
+    max-width: 100% !important;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) .theme-doc-markdown {
+    max-width: 1080px;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) [class*='docItemContainer'] {
+    box-sizing: border-box;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 3vw, 40px);
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3 {
+    position: fixed;
+    top: calc(var(--ifm-navbar-height) + 20px);
+    right: 0;
+    bottom: 20px;
+    z-index: calc(var(--ifm-z-index-fixed) - 1);
+    display: block;
+    width: min(340px, calc(100vw - 48px));
+    max-width: min(340px, calc(100vw - 48px));
+    padding: 0 0 0 38px;
+    transform: translateX(calc(100% - 38px));
+    transition: transform var(--ifm-transition-fast) ease;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3:hover,
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3:focus-within {
+    transform: translateX(0);
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3::before {
+    position: absolute;
+    top: 24px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-height: 92px;
+    border: 1px solid var(--course-line);
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: var(--ifm-background-surface-color);
+    box-shadow: var(--course-shadow);
+    color: var(--course-teal);
+    content: "目录";
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
+    writing-mode: vertical-rl;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3 .theme-doc-toc-desktop {
+    position: static;
+    max-height: calc(100vh - var(--ifm-navbar-height) - 40px);
+    margin: 0;
+    padding: 18px 14px 18px 18px;
+    overflow-y: auto;
+    border: 1px solid var(--course-line);
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: var(--ifm-background-surface-color);
+    box-shadow: var(--course-shadow);
+  }
+}
+
+@layer docusaurus.infima {
+  @media screen and (min-width: 997px) and (max-width: 1439px) {
+    .row:has(> .col > .theme-doc-toc-desktop) > [class*='docItemCol'] {
+      max-width: 100% !important;
+    }
+  }
+}
+
+@media screen and (min-width: 997px) {
+  .theme-code-block,
+  .docusaurus-mermaid-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
 }
 
 @media screen and (max-width: 996px) {
@@ -213,9 +304,10 @@ body {
   .markdown h2 {
     font-size: 26px;
   }
-
-  .markdown table {
-    display: block;
+  .theme-code-block,
+  .docusaurus-mermaid-container {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }
 
