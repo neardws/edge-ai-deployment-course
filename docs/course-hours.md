@@ -26,6 +26,8 @@ title: 40/60 学时教学安排
 
 Part IV 单独用于模型微调闭环：判断是否需要微调、准备 instruction 数据、检查 chat template、运行 Qwen LoRA/QLoRA smoke test、对比基座和 adapter 输出，并判断是否进入合并、量化和端侧 profiling。
 
+60 学时版本可以加入更多外部资料转化内容：vLLM serving 与评估、Android/MLC/LiteRT 移动端路线、Arm 风格极端量化和逐层 bit-width 选做实验。这些内容作为扩展，不改变 Qwen/GGUF/llama.cpp/Jetson/profiling 主线。
+
 ## 40 学时裁剪版
 
 40 学时版本保留课程主线，但减少横向框架比较和高级推理服务内容：
@@ -40,6 +42,8 @@ Part IV 单独用于模型微调闭环：判断是否需要微调、准备 instr
 | VLM/Agent 案例 | 保留系统图和风险点，减少案例讨论 | 2 |
 | 课堂项目展示轮次 | 保留报告提交，减少现场展示和互评 | 6 |
 | **合计节省** |  | **20** |
+
+40 学时版本必须保留 Qwen、GGUF、llama.cpp、Jetson 或 Ubuntu、profiling、本地 API smoke test 和最终报告。vLLM serving、Android 实机、MLC/LiteRT、极端量化和逐层 bit-width 搜索作为阅读或选做，不放入必做链路。
 
 ## 理论、实验、项目比例
 

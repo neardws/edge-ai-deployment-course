@@ -55,6 +55,26 @@ flowchart TD
 
 外部课程通常覆盖范围更宽，本课程要做的是把它们收束到“端侧模型量化、压缩、推理加速和部署评估”这一条主线。
 
+## 主参考资料表
+
+本课程采用组合参考体系，而不是照搬单一课程。每类资料只吸收它最强的部分，再落到 Qwen、GGUF、llama.cpp、Ubuntu/Jetson、profiling 和最终报告这条主线。
+
+| 类别 | 资料 | 适合借鉴 | 课程化处理 |
+| --- | --- | --- | --- |
+| 课程骨架 | [MIT 6.5940 TinyML and Efficient Deep Learning Computing](https://hanlab.mit.edu/courses/2024-fall-65940) | 高效深度学习、剪枝、量化、LLM 部署和实验结构 | 做理论骨架，本课程改成更偏端侧工程和真实设备评估 |
+| 链路结构 | [Coursera Deploying Deep Learning: Quantization, Serving, and Edge AI](https://www.coursera.org/learn/deploying-deep-learning-quantization-serving-and-edge-ai) | 压缩/量化、serving、edge、benchmark、API 和 final project 的链路 | 借鉴“量化后还要 serving、benchmark、API 化”的项目结构，不照搬云端或容器部分 |
+| Serving/量化 | [DeepLearning.AI Fast & Efficient LLM Inference with vLLM](https://www.deeplearning.ai/courses/fast-and-efficient-llm-inference-with-vllm/) | PagedAttention、KV Cache、TTFT、throughput、Qwen benchmark 和评估 | 补强 Runtime 与推理加速章节，作为 vLLM 扩展路线 |
+| Serving/量化 | [DeepLearning.AI Efficiently Serving LLMs](https://www.deeplearning.ai/courses/efficiently-serving-llms/) | KV caching、continuous batching、量化、LoRA adapter serving | 用于解释服务化吞吐、延迟和 adapter 部署边界 |
+| Serving/量化 | [DeepLearning.AI Quantization Fundamentals](https://www.deeplearning.ai/courses/quantization-fundamentals/) / [Quantization in Depth](https://www.deeplearning.ai/courses/quantization-in-depth/) | 线性量化、symmetric/asymmetric、per-tensor/per-channel/per-group、weight packing | 补到量化数学基础、PTQ/QAT 和 INT8/INT4 对比 |
+| 端侧实作 | [NVIDIA TensorRT Edge-LLM](https://github.com/NVIDIA/TensorRT-Edge-LLM) / [Jetson AI Lab](https://www.jetson-ai-lab.com/) | Jetson/edge LLM/VLM、ONNX、TensorRT engine、功耗和边缘约束 | 用于 Ubuntu/Jetson/Qwen 部署模块和边缘设备取舍 |
+| 端侧实作 | [MLC LLM](https://llm.mlc.ai/) | 跨平台本地 LLM、编译、REST/Python/JavaScript/iOS/Android 路线 | 放入移动端路线和跨平台 runtime 横向比较 |
+| 端侧实作 | [Qwen llama.cpp 本地运行](https://qwen.readthedocs.io/en/latest/run_locally/llama.cpp.html) | Qwen、GGUF、llama.cpp、量化和本地部署 | 作为课程实作主线：原模型到 Q8/Q5/Q4，再到服务化和 profiling |
+| 端侧实作 | [Google LiteRT](https://developers.google.com/edge/litert) | on-device ML/GenAI、Android/iOS、低延迟和隐私 | 作为移动端和传统端侧 AI 路线补充 |
+| 中文补充 | [LLM 后训练实践：模型压缩、部署优化与能力扩展](https://posttrain.gaozhijun.me/docs/lecture-5/) | PTQ/QAT、GPTQ/AWQ、蒸馏、VLM、function calling、部署评估 | 补模型压缩、VLM/Agent 和中文教学表达 |
+| 中文补充 | [大模型微调与部署指南](https://wuduoyi.com/llm-finetune/deploy.html) | VRAM、KV Cache、vLLM/SGLang/TensorRT-LLM/LMDeploy/TGI、LoRA、chat template | 补微调与数据适配、部署服务化和工程参数解释 |
+| 额外重点 | [microsoft/edgeai-for-beginners](https://github.com/microsoft/edgeai-for-beginners) | SLM、Edge AI 入门、多平台样例、Foundry Local、agent/function calling | 借鉴广义 EdgeAI 叙事和应用样例，不替换课程主线 |
+| 额外重点 | [arm-education/Advanced-AI-Hardware-Software-Co-Design](https://github.com/arm-education/Advanced-AI-Hardware-Software-Co-Design) | 极端量化、QAT、逐层 bit-width 搜索、Android llama.cpp benchmark | 作为高级选做或教师演示，不作为第一轮必做实验 |
+
 ## 主参考课程与教材
 
 | 资料 | 类型 | 适合借鉴 | 不直接照搬 |

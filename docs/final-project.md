@@ -10,6 +10,8 @@ title: 最终项目与验收标准
 
 项目默认使用 Qwen 小模型、GGUF 权重、llama.cpp、Ubuntu Server + NVIDIA GPU，并可选择增加 NVIDIA Jetson 对照实验。课程不要求所有学员得到相同性能数字，因为不同显卡、Jetson 型号、驱动版本、散热条件和模型文件都会影响结果。课程要求的是：记录真实结果，并能解释结果。
 
+报告还必须说明量化后如何进入 serving、benchmark 和 API 化链路。可以借鉴外部课程的“压缩/量化 -> 高性能推理 -> edge runtime -> final project”结构，但不要求加入 Docker、NVIDIA Triton 或云端集群 serving。
+
 ## 项目主线
 
 ```mermaid
@@ -37,7 +39,7 @@ flowchart LR
 | Runtime | llama.cpp CLI 和 server | ONNX Runtime、TensorRT、MLC LLM |
 | 推理加速 | GPU offload、ctx-size、threads、llama-bench | batch、FlashAttention、speculative decoding |
 | Profiling | 首 token、tokens/s、峰值内存、失败日志 | 温度、功耗、p50/p95、长稳测试 |
-| 服务 | 本地 OpenAI-compatible API smoke test | 多轮对话、并发请求、简单前端 |
+| 服务 | 本地 OpenAI-compatible API smoke test、量化模型服务化说明 | 多轮对话、并发请求、简单前端、vLLM serving 对比 |
 
 ## 报告结构
 
@@ -51,7 +53,7 @@ flowchart LR
 6. **量化对比实验**：Q8/Q5/Q4 或同类格式的速度、内存、质量现象。
 7. **推理加速实验**：GPU offload、ctx-size、threads、llama-bench 或服务参数。
 8. **Profiling 与失败分析**：`nvidia-smi`、`tegrastats`、日志片段、OOM/fallback/降速原因。
-9. **本地服务验证**：OpenAI-compatible API 请求、响应、错误处理。
+9. **本地服务验证**：OpenAI-compatible API 请求、响应、错误处理，并说明量化模型如何 benchmark 和 API 化。
 10. **部署建议**：推荐方案、不推荐方案、上线前补充验证。
 11. **附录**：命令、日志路径、表格、参考资料。
 
@@ -76,6 +78,7 @@ flowchart LR
 - 能完成至少三种量化格式或参数配置的对比。
 - 能记录首 token、tokens/s、峰值内存或显存、错误日志。
 - 能启动本地 OpenAI-compatible API，并用 Python 客户端完成一次请求。
+- 能说明量化模型从 CLI 实验进入 serving、benchmark 和 API 化时新增了哪些成本和风险。
 - 能写出为什么推荐某个部署方案，而不是只贴命令输出。
 
 优秀项目应进一步做到：

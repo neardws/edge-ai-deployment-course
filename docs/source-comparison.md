@@ -64,6 +64,22 @@ flowchart TD
 | MLPerf / Nsight / llama-bench | profiling 和 benchmark 方法 | 竞赛级 benchmark 流程不作为必做实验 |
 | VLM / Agent 资料 | 组件拆解、工具权限、端云协同、失败恢复 | 追逐快速变化的框架接口和营销式 agent demo |
 
+## 组合参考体系
+
+很少有单门课完整覆盖“端侧模型量化部署工程链路”。本课程的做法是把不同来源拼成一套可执行参考体系，但所有内容都收束到同一个模型、同一套设备约束、同一组量化版本和同一份部署评估报告。
+
+| 本课程模块 | 重点参考来源 | 吸收方式 |
+| --- | --- | --- |
+| 前置知识：推理指标、Transformer/LLM、量化数学 | MIT 6.5940、DeepLearning.AI Quantization Fundamentals / Quantization in Depth | 用 MIT 做高效 AI 理论骨架，用 DeepLearning.AI 补量化术语、粒度和误差直觉 |
+| 端侧部署问题框架：延迟、内存、功耗、场景约束 | NVIDIA TensorRT Edge-LLM、Jetson AI Lab | 用 Jetson/edge 示例解释边缘设备和数据中心 serving 的目标差异 |
+| PTQ/QAT、INT8/INT4、AWQ/GPTQ/GGUF | Coursera Deploying Deep Learning、Qwen 文档、Arm Advanced Quantization | 用 Coursera 组织链路，用 Qwen 作为主实验入口，用 Arm 作为极端量化和逐层 bit-width 扩展 |
+| KV Cache、runtime、serving、profiling | DeepLearning.AI vLLM、Efficiently Serving LLMs、Coursera Deploying Deep Learning | 补 TTFT、throughput、PagedAttention、continuous batching、benchmark 和 API 化 |
+| LoRA/QLoRA、adapter、chat template、再量化 | 大模型微调与部署指南、LLM 后训练实践、Qwen 文档 | 补数据适配、adapter 去留、chat template 一致性和部署回归 |
+| llama.cpp / GGUF / Q8-Q5-Q4 对比 | Qwen llama.cpp、llama.cpp、Coursera Edge AI 模块 | 保持 Qwen GGUF 作为主线实验，不把工具枚举变成课程目标 |
+| Jetson / Ubuntu / API 服务 | NVIDIA Jetson AI Lab、TensorRT Edge-LLM、Qwen、llama.cpp server | 把环境、量化、profiling、本地服务和失败日志连成可复查实验 |
+| 移动端路线 | MLC LLM、LiteRT、Arm Android lab、Microsoft EdgeAI 样例 | 做路线图和选做方向，不在第一轮新增完整 Android 实验 |
+| VLM / Agent / 最终复盘 | LLM 后训练实践、NVIDIA Edge-LLM VLM 示例、Microsoft EdgeAI for Beginners | 用于系统拆解、端云协同、权限边界和最终项目复盘 |
+
 ## 吸收到课程结构中
 
 | 课程部分 | 主要吸收来源 | 课程化处理 |

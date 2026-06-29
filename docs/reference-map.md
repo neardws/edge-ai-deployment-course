@@ -94,6 +94,21 @@ mindmap
 
 课程讲义应该把资料“消化”成教学结构，而不是让学生在链接中迷路。
 
+## 主参考来源
+
+| 来源 | 放入资料地图的原因 | 主要对应章节 |
+| --- | --- | --- |
+| [MIT 6.5940 TinyML and Efficient Deep Learning Computing](https://hanlab.mit.edu/courses/2024-fall-65940) | 高效深度学习、压缩、量化和 LLM 部署的课程骨架 | 前置知识、量化压缩、压缩蒸馏 |
+| [Coursera Deploying Deep Learning: Quantization, Serving, and Edge AI](https://www.coursera.org/learn/deploying-deep-learning-quantization-serving-and-edge-ai) | 把量化、serving、edge、benchmark、API 和项目串成完整链路 | 量化压缩、Runtime、最终项目 |
+| [DeepLearning.AI vLLM](https://www.deeplearning.ai/courses/fast-and-efficient-llm-inference-with-vllm/) / [Efficiently Serving LLMs](https://www.deeplearning.ai/courses/efficiently-serving-llms/) | 推理服务、KV Cache、PagedAttention、batching、TTFT 和 throughput | Runtime 与推理加速、服务化 |
+| [DeepLearning.AI Quantization Fundamentals](https://www.deeplearning.ai/courses/quantization-fundamentals/) / [Quantization in Depth](https://www.deeplearning.ai/courses/quantization-in-depth/) | 线性量化、粒度、对称/非对称、weight packing | 量化数学基础、PTQ/QAT |
+| [NVIDIA TensorRT Edge-LLM](https://github.com/NVIDIA/TensorRT-Edge-LLM) / [Jetson AI Lab](https://www.jetson-ai-lab.com/) | Jetson/edge LLM/VLM、TensorRT、功耗和边缘约束 | Jetson 实作、VLM、端侧部署框架 |
+| [MLC LLM](https://llm.mlc.ai/) / [LiteRT](https://developers.google.com/edge/litert) | 跨平台和移动端 on-device runtime 路线 | 移动端路线、Runtime 横向比较 |
+| [Qwen llama.cpp](https://qwen.readthedocs.io/en/latest/run_locally/llama.cpp.html) | Qwen、GGUF、llama.cpp、量化和本地部署 | Qwen baseline、量化对比、服务化 |
+| [LLM 后训练实践](https://posttrain.gaozhijun.me/docs/lecture-5/) / [大模型微调与部署指南](https://wuduoyi.com/llm-finetune/deploy.html) | 中文语境下的压缩、微调、部署参数和服务化细节 | 微调、压缩、VLM/Agent、部署服务 |
+| [microsoft/edgeai-for-beginners](https://github.com/microsoft/edgeai-for-beginners) | SLM、EdgeAI 应用、多平台样例、agent/function calling | EdgeAI 叙事、VLM/Agent、系统案例 |
+| [arm-education/Advanced-AI-Hardware-Software-Co-Design](https://github.com/arm-education/Advanced-AI-Hardware-Software-Co-Design) | 极端量化、QAT、逐层 bit-width 搜索、Android llama.cpp benchmark | 量化高级选做、移动端扩展 |
+
 ## 基础与 LLM
 
 | 资料 | 用途 | 课程吸收方式 |
