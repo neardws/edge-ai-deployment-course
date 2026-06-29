@@ -118,6 +118,8 @@ ssh -o BatchMode=yes -o ConnectTimeout=8 \
 
 如果看到 `Host key verification failed`，说明本机记录的 host key 和当前设备不一致。常见原因是设备重刷、IP 被复用或你连到了另一台机器。先让教师确认设备指纹，再处理本机 SSH known_hosts 记录。
 
+如果教师说明设备必须通过实验室网关访问，要确认是哪一种方式：`ProxyJump` 使用的是你本机的 SSH key；先登录网关再从网关登录 Jetson，使用的是网关上的认证材料。两者失败原因不同。
+
 ## Step 1：建立实验目录
 
 ```bash
@@ -167,6 +169,15 @@ g++ --version
 nvcc --version
 ```
 
+Jetson 上 `nvcc` 可能已安装但不在默认 `PATH`。如果 `nvcc` 找不到，先检查：
+
+```bash
+ls -ld /usr/local/cuda*
+find /usr/local -maxdepth 3 -name nvcc 2>/dev/null
+export PATH=/usr/local/cuda-12.6/bin:$PATH
+nvcc --version
+```
+
 如果能查询 TensorRT Python 包：
 
 ```bash
@@ -182,7 +193,7 @@ python3 -c "import tensorrt as trt; print(trt.__version__)"
 查询功耗模式：
 
 ```bash
-sudo nvpmodel -q
+nvpmodel -q
 ```
 
 查看时钟状态：
@@ -190,6 +201,8 @@ sudo nvpmodel -q
 ```bash
 sudo jetson_clocks --show
 ```
+
+部分设备允许普通用户查询 `nvpmodel`，但 `jetson_clocks --show` 仍需要 root。如果没有 sudo 权限，记录“无权限查询/固定频率”即可。
 
 如果课程允许固定频率，可由教师统一执行：
 
@@ -236,28 +249,36 @@ date | tee -a ~/edge-ai-lab/logs/jetson-qwen-baseline.txt
 cd ~/edge-ai-lab/src
 git clone https://github.com/ggml-org/llama.cpp.git
 cd llama.cpp
-cmake -B build -DGGML_CUDA=ON
-cmake --build build --config Release -j
+export PATH=/usr/local/cuda-12.6/bin:$PATH
+cmake -B build-jetson -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=87
+cmake --build build-jetson --config Release --target llama-cli llama-bench llama-completion -j2
 ```
 
-如果内存紧张，可以降低并行度：
+`CMAKE_CUDA_ARCHITECTURES=87` 面向 Jetson Orin。不要在 Orin NX 上默认编译多套 CUDA 架构，否则首次构建会明显变慢。
+
+如果 Jetson 不能直接访问 GitHub，可以使用教师提供的源码包或内网镜像。不要把第三方源码提交进课程仓库。
+
+如果内存紧张或温度较高，可以降低并行度：
 
 ```bash
-cmake --build build --config Release -j2
+cmake --build build-jetson --config Release --target llama-cli llama-bench llama-completion -j1
 ```
 
 记录构建日志：
 
 ```bash
-cmake -B build -DGGML_CUDA=ON 2>&1 | tee ~/edge-ai-lab/logs/jetson-cmake.txt
-cmake --build build --config Release -j2 2>&1 | tee ~/edge-ai-lab/logs/jetson-build.txt
+cmake -B build-jetson -DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=87 \
+  2>&1 | tee ~/edge-ai-lab/logs/jetson-cmake.txt
+cmake --build build-jetson --config Release --target llama-cli llama-bench llama-completion -j2 \
+  2>&1 | tee ~/edge-ai-lab/logs/jetson-build.txt
 ```
 
 检查工具：
 
 ```bash
-./build/bin/llama-cli --help | head
-./build/bin/llama-bench --help | head
+./build-jetson/bin/llama-cli --help | head
+./build-jetson/bin/llama-bench --help | head
+./build-jetson/bin/llama-completion --help | head
 ```
 
 ## Step 7：准备 Qwen GGUF
@@ -291,36 +312,48 @@ ls -lh ~/edge-ai-lab/models/qwen/*.gguf
 ```bash
 cd ~/edge-ai-lab/src/llama.cpp
 
-./build/bin/llama-cli \
+./build-jetson/bin/llama-completion \
   -m ~/edge-ai-lab/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf \
   -p "用三句话解释 Jetson 上做端侧模型部署需要关注什么。" \
   -n 128 \
   --ctx-size 2048 \
   -ngl 99 \
+  -cnv \
+  -st \
+  --no-display-prompt \
+  --perf \
   2>&1 | tee ~/edge-ai-lab/logs/jetson-qwen-baseline.txt
 ```
 
 如果失败，先尝试降低上下文：
 
 ```bash
-./build/bin/llama-cli \
+./build-jetson/bin/llama-completion \
   -m ~/edge-ai-lab/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf \
   -p "用三句话解释 Jetson 上做端侧模型部署需要关注什么。" \
   -n 96 \
   --ctx-size 1024 \
   -ngl 99 \
+  -cnv \
+  -st \
+  --no-display-prompt \
+  --perf \
   2>&1 | tee ~/edge-ai-lab/logs/jetson-qwen-baseline-ctx1024.txt
 ```
 
 如果仍失败，再比较 CPU 路径：
 
 ```bash
-./build/bin/llama-cli \
+./build-jetson/bin/llama-completion \
   -m ~/edge-ai-lab/models/qwen/qwen2.5-1.5b-instruct-q4_k_m.gguf \
   -p "用三句话解释 Jetson 上做端侧模型部署需要关注什么。" \
   -n 96 \
   --ctx-size 1024 \
   -ngl 0 \
+  -cnv \
+  -st \
+  --no-display-prompt \
+  --perf \
   2>&1 | tee ~/edge-ai-lab/logs/jetson-qwen-cpu.txt
 ```
 

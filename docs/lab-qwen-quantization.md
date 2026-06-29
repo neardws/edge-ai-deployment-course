@@ -136,6 +136,23 @@ ls -lh ~/edge-ai-lab/models/qwen/*.gguf
 
 不要靠猜测填写。
 
+服务器或笔记本烟雾测试可以先补齐 Qwen2.5 0.5B Instruct 的 Q4/Q5/Q8：
+
+```bash
+cd ~/edge-ai-lab/models/qwen
+base=https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main
+
+for f in \
+  qwen2.5-0.5b-instruct-q4_k_m.gguf \
+  qwen2.5-0.5b-instruct-q5_k_m.gguf \
+  qwen2.5-0.5b-instruct-q8_0.gguf
+do
+  curl -L -C - --retry 3 --retry-delay 3 -o "$f" "$base/$f"
+  ls -lh "$f"
+  sha256sum "$f"
+done
+```
+
 ## Step 2：固定实验变量
 
 量化对比必须尽量只改变模型量化格式。
@@ -155,23 +172,31 @@ ls -lh ~/edge-ai-lab/models/qwen/*.gguf
 
 ## Step 3：运行 Q8/Q5/Q4 对比
 
-按实际文件名修改数组。
+按实际文件名修改。不要先把文件列表塞进一个字符串变量；不同 shell 的拆词行为可能不同。
 
 ```bash
 cd ~/edge-ai-lab/src/llama.cpp
 
 for model in \
-  qwen2.5-1.5b-instruct-q8_0.gguf \
-  qwen2.5-1.5b-instruct-q5_k_m.gguf \
-  qwen2.5-1.5b-instruct-q4_k_m.gguf
+  qwen2.5-0.5b-instruct-q4_k_m.gguf \
+  qwen2.5-0.5b-instruct-q5_k_m.gguf \
+  qwen2.5-0.5b-instruct-q8_0.gguf
 do
-  ./build/bin/llama-cli \
+  stem=${model%.gguf}
+
+  ./build/bin/llama-completion \
     -m ~/edge-ai-lab/models/qwen/${model} \
     -p "用三句话解释端侧模型量化的价值。" \
     -n 128 \
     -ngl 99 \
     --ctx-size 2048 \
-    2>&1 | tee ~/edge-ai-lab/logs/${model}.log
+    --temp 0.2 \
+    --seed 42 \
+    -cnv \
+    -st \
+    --no-display-prompt \
+    --perf \
+    2>&1 | tee ~/edge-ai-lab/logs/${stem}-completion.log
 done
 ```
 
@@ -179,16 +204,24 @@ done
 
 ```bash
 for model in \
-  qwen2.5-1.5b-instruct-q8_0.gguf \
-  qwen2.5-1.5b-instruct-q4_k_m.gguf
+  qwen2.5-0.5b-instruct-q4_k_m.gguf \
+  qwen2.5-0.5b-instruct-q8_0.gguf
 do
-  ./build/bin/llama-cli \
+  stem=${model%.gguf}
+
+  ./build/bin/llama-completion \
     -m ~/edge-ai-lab/models/qwen/${model} \
     -p "用三句话解释端侧模型量化的价值。" \
     -n 128 \
     -ngl 99 \
     --ctx-size 2048 \
-    2>&1 | tee ~/edge-ai-lab/logs/${model}.log
+    --temp 0.2 \
+    --seed 42 \
+    -cnv \
+    -st \
+    --no-display-prompt \
+    --perf \
+    2>&1 | tee ~/edge-ai-lab/logs/${stem}-completion.log
 done
 ```
 
@@ -233,11 +266,13 @@ tegrastats --interval 1000 | tee ~/edge-ai-lab/logs/jetson-quantization-tegrasta
 可以使用课程提供的轻量脚本辅助提取常见 timing 字段：
 
 ```bash
-python3 labs/scripts/parse_llama_log.py ~/edge-ai-lab/logs/qwen2.5-1.5b-instruct-q4_k_m.gguf.log \
+python3 labs/scripts/parse_llama_log.py ~/edge-ai-lab/logs/qwen2.5-0.5b-instruct-q4_k_m-completion.log \
   --append ~/edge-ai-lab/results/quant_compare.csv
 ```
 
 脚本只提取日志中已经存在的字段。没有出现的字段应留空或写“未记录”。
+
+如果课程仓库在本地、日志在远程服务器，需要先把日志复制到本地，或在远程服务器上克隆课程仓库后再运行脚本。
 
 如果字段名称随 llama.cpp 版本不同，以实际日志为准。
 
