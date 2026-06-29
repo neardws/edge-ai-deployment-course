@@ -1,58 +1,145 @@
 .launchPage {
   min-height: calc(100vh - var(--ifm-navbar-height));
-  display: grid;
-  place-items: center;
-  padding: 48px 24px;
+  display: flex;
+  align-items: center;
+  padding: 72px max(24px, calc((100vw - 1200px) / 2));
   background:
-    linear-gradient(90deg, rgba(247, 251, 253, 0.98) 0%, rgba(247, 251, 253, 0.84) 44%, rgba(247, 251, 253, 0.2) 72%),
+    linear-gradient(90deg, rgba(246, 250, 251, 1) 0%, rgba(246, 250, 251, 0.98) 38%, rgba(246, 250, 251, 0.34) 75%),
     url('/img/edge-ai-course-hero.png') center right / cover no-repeat;
+  border-bottom: 1px solid var(--course-line);
 }
 
 .launchPanel {
-  width: min(760px, 100%);
+  width: 100%;
+  max-width: 720px;
   margin-right: auto;
-  padding: 0 max(24px, calc((100vw - 1180px) / 2));
-}
-
-.launchPanel span {
-  color: var(--course-teal);
-  font-size: 14px;
-  font-weight: 800;
-  text-transform: uppercase;
+  min-width: 0;
+  flex: 0 1 720px;
 }
 
 .launchPanel h1 {
-  margin: 18px 0 0;
+  margin: 0;
   color: #10212b;
-  font-size: 54px;
-  line-height: 1.1;
+  font-size: 58px;
+  line-height: 1.06;
+  text-wrap: balance;
 }
 
 .launchPanel p {
-  max-width: 620px;
+  max-width: 680px;
   margin: 24px 0 32px;
   color: #40515b;
   font-size: 19px;
-  line-height: 1.75;
+  line-height: 1.72;
 }
 
-.launchPanel div {
+.actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
 }
 
+.actions :global(.button) {
+  justify-content: center;
+  min-width: 180px;
+}
+
+.notes {
+  display: grid;
+  gap: 12px;
+  max-width: 660px;
+  margin: 42px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.notes li {
+  position: relative;
+  padding: 14px 18px 14px 38px;
+  border: 1px solid rgba(19, 124, 139, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--course-muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.notes li::before {
+  position: absolute;
+  top: 19px;
+  left: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--course-teal);
+  content: "";
+}
+
+:global([data-theme='dark']) .launchPage {
+  background:
+    linear-gradient(90deg, rgba(11, 18, 24, 1) 0%, rgba(11, 18, 24, 0.96) 40%, rgba(11, 18, 24, 0.34) 76%),
+    url('/img/edge-ai-course-hero.png') center right / cover no-repeat;
+}
+
+:global([data-theme='dark']) .launchPanel h1,
+:global([data-theme='dark']) .launchPanel p {
+  color: var(--course-ink);
+}
+
+:global([data-theme='dark']) .notes li {
+  border-color: rgba(76, 201, 217, 0.24);
+  background: rgba(14, 27, 36, 0.88);
+  color: var(--course-muted);
+}
+
 @media screen and (max-width: 996px) {
   .launchPage {
-    place-items: start;
-    padding-top: 56px;
+    align-items: start;
+    min-height: auto;
+    padding: 56px 24px 340px;
+    background:
+      linear-gradient(180deg, rgba(246, 250, 251, 1) 0%, rgba(246, 250, 251, 0.98) 56%, rgba(246, 250, 251, 0.26) 100%),
+      url('/img/edge-ai-course-hero.png') bottom center / 100% auto no-repeat;
+  }
+
+  :global([data-theme='dark']) .launchPage {
+    background:
+      linear-gradient(180deg, rgba(11, 18, 24, 1) 0%, rgba(11, 18, 24, 0.97) 58%, rgba(11, 18, 24, 0.28) 100%),
+      url('/img/edge-ai-course-hero.png') bottom center / 100% auto no-repeat;
   }
 
   .launchPanel {
-    padding: 0;
+    max-width: 680px;
   }
 
   .launchPanel h1 {
-    font-size: 38px;
+    font-size: 40px;
+  }
+
+  .launchPanel p {
+    font-size: 17px;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .launchPage {
+    padding-inline: 18px;
+    padding-bottom: 280px;
+  }
+
+  .launchPanel h1 {
+    font-size: 34px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions :global(.button) {
+    width: 100%;
+  }
+
+  .notes li {
+    padding-right: 14px;
   }
 }

@@ -15,6 +15,19 @@
   --course-teal: #137c8b;
   --course-cobalt: #2356d7;
   --course-amber: #d89024;
+  --course-surface: #f7fbfd;
+  --course-shadow: 0 18px 60px rgba(16, 33, 43, 0.08);
+  --course-secondary-bg: #edf3f6;
+  --course-secondary-bg-hover: #e2ecef;
+  --course-secondary-border: #e5edf1;
+  --course-secondary-border-hover: #d7e4e9;
+  --course-secondary-text: var(--course-ink);
+  --ifm-navbar-height: 64px;
+  --ifm-global-radius: 8px;
+  --ifm-button-border-radius: 8px;
+  --ifm-font-size-base: 17px;
+  --ifm-line-height-base: 1.7;
+  --ifm-heading-font-weight: 800;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
@@ -33,16 +46,276 @@
   --course-teal: #4cc9d9;
   --course-cobalt: #8ba8ff;
   --course-amber: #ffc56a;
+  --course-surface: #101820;
+  --course-shadow: 0 18px 60px rgba(0, 0, 0, 0.26);
+  --course-secondary-bg: #182832;
+  --course-secondary-bg-hover: #213744;
+  --course-secondary-border: #2f4c5a;
+  --course-secondary-border-hover: #3f6373;
+  --course-secondary-text: #f4f8fb;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+html {
+  scroll-padding-top: calc(var(--ifm-navbar-height) + 16px);
+}
+
+body {
+  text-rendering: optimizeLegibility;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--course-line);
+  box-shadow: none;
+}
+
+.navbar__brand {
+  font-weight: 800;
+}
+
+.navbar__logo {
+  height: 34px;
+}
+
+.navbar__link {
+  font-weight: 650;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46px;
+  font-weight: 750;
+  letter-spacing: 0;
+}
+
+.button--primary {
+  border-color: var(--course-teal);
+  background: var(--course-teal);
+}
+
+.button--primary:hover {
+  border-color: var(--ifm-color-primary-dark);
+  background: var(--ifm-color-primary-dark);
+}
+
+.button--secondary:not(.button--outline) {
+  border-color: var(--course-secondary-border);
+  background: var(--course-secondary-bg);
+  color: var(--course-secondary-text);
+}
+
+.button--secondary:not(.button--outline):hover {
+  border-color: var(--course-secondary-border-hover);
+  background: var(--course-secondary-bg-hover);
+  color: var(--course-secondary-text);
 }
 
 .markdown h1,
 .markdown h2,
 .markdown h3 {
   letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.markdown h1 {
+  font-size: 44px;
+  line-height: 1.16;
+}
+
+.markdown h2 {
+  margin-top: 3rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--course-line);
+  font-size: 30px;
+}
+
+.markdown h3 {
+  margin-top: 2.2rem;
+  font-size: 23px;
+}
+
+.markdown p,
+.markdown li {
+  color: var(--course-ink);
+}
+
+.markdown p {
+  line-height: 1.82;
+}
+
+.markdown table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--course-line);
+  border-radius: 8px;
+  font-size: 15px;
 }
 
 .markdown blockquote {
   border-left: 4px solid var(--course-teal);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--course-teal) 7%, transparent);
   color: var(--course-muted);
+  padding: 1rem 1.25rem;
+}
+
+.markdown blockquote p {
+  color: var(--course-muted);
+}
+
+.theme-code-block {
+  box-shadow: none;
+}
+
+.theme-doc-sidebar-container {
+  border-right-color: var(--course-line) !important;
+  background: color-mix(in srgb, var(--course-surface) 74%, transparent);
+}
+
+.theme-doc-sidebar-menu {
+  padding: 1rem 0.75rem;
+}
+
+.menu__link {
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.menu__link--active:not(.menu__link--sublist) {
+  font-weight: 800;
+}
+
+.table-of-contents {
+  border-left-color: var(--course-line);
+  font-size: 13px;
+}
+
+.theme-doc-markdown {
+  max-width: 960px;
+}
+
+.theme-doc-toc-desktop {
+  padding-left: 1rem;
+}
+
+@media screen and (min-width: 997px) and (max-width: 1439px) {
+  .row:has(> .col > .theme-doc-toc-desktop) > .col:first-child,
+  .row:has(> .col > .theme-doc-toc-desktop) > [class*='docItemCol'] {
+    flex-basis: 100%;
+    max-width: 100% !important;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) .theme-doc-markdown {
+    max-width: 1080px;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) [class*='docItemContainer'] {
+    box-sizing: border-box;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: clamp(24px, 3vw, 40px);
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3 {
+    position: fixed;
+    top: calc(var(--ifm-navbar-height) + 20px);
+    right: 0;
+    bottom: 20px;
+    z-index: calc(var(--ifm-z-index-fixed) - 1);
+    display: block;
+    width: min(340px, calc(100vw - 48px));
+    max-width: min(340px, calc(100vw - 48px));
+    padding: 0 0 0 38px;
+    transform: translateX(calc(100% - 38px));
+    transition: transform var(--ifm-transition-fast) ease;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3:hover,
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3:focus-within {
+    transform: translateX(0);
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3::before {
+    position: absolute;
+    top: 24px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    min-height: 92px;
+    border: 1px solid var(--course-line);
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: var(--ifm-background-surface-color);
+    box-shadow: var(--course-shadow);
+    color: var(--course-teal);
+    content: "目录";
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0;
+    writing-mode: vertical-rl;
+  }
+
+  .row:has(> .col > .theme-doc-toc-desktop) > .col.col--3 .theme-doc-toc-desktop {
+    position: static;
+    max-height: calc(100vh - var(--ifm-navbar-height) - 40px);
+    margin: 0;
+    padding: 18px 14px 18px 18px;
+    overflow-y: auto;
+    border: 1px solid var(--course-line);
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    background: var(--ifm-background-surface-color);
+    box-shadow: var(--course-shadow);
+  }
+}
+
+@layer docusaurus.infima {
+  @media screen and (min-width: 997px) and (max-width: 1439px) {
+    .row:has(> .col > .theme-doc-toc-desktop) > [class*='docItemCol'] {
+      max-width: 100% !important;
+    }
+  }
+}
+
+@media screen and (min-width: 997px) {
+  .theme-code-block,
+  .docusaurus-mermaid-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media screen and (max-width: 996px) {
+  :root {
+    --ifm-font-size-base: 16px;
+  }
+
+  .markdown h1 {
+    font-size: 34px;
+  }
+
+  .markdown h2 {
+    font-size: 26px;
+  }
+  .theme-code-block,
+  .docusaurus-mermaid-container {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media screen and (max-width: 520px) {
+  .navbar__title {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
