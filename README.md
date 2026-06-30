@@ -15,8 +15,21 @@ The original Word outline is intentionally not committed. Public content is stor
 
 ## Local Development
 
+Use Node.js 22 for local development. The repository includes both `.node-version` and `.nvmrc` so common version managers can pick the same runtime without hard-coding a machine-specific path.
+
+See `CONTRIBUTING.md` for chapter authoring and maintenance guidelines.
+
 ```bash
-npm install
+fnm use
+npm ci
+npm run start
+```
+
+If your machine uses nvm instead of fnm:
+
+```bash
+nvm use
+npm ci
 npm run start
 ```
 
@@ -27,6 +40,10 @@ npm run build
 ```
 
 The static site is generated into `build/`.
+
+## CI
+
+`.github/workflows/ci.yml` runs `npm ci`, `npm run typecheck`, and `npm run build` on pull requests and pushes to `main`. The generated `build/` directory is uploaded as a workflow artifact for review or manual publishing.
 
 ## Deployment
 
