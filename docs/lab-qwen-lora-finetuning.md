@@ -125,18 +125,26 @@ flowchart LR
 | adapter files | 后续复现和合并需要文件证据 | `adapter_config.json`、adapter 权重文件列表 |
 | merge result | 部署前要确认合并没有破坏输出 | merge 日志、base/adapter/merged 三列对比 |
 
-### 外部课程原图参考
+### 本课程重绘：LoRA Smoke Test 闭环
 
-下面两张图来自 Hugging Face Course documentation-images 数据集。它们适合直接贴入本实验：第一张提醒微调只是从预训练模型出发做任务适配，第二张提醒长文本或多轮样本进入训练前要先被切块、模板化和检查。
+Hugging Face 的 fine-tuning 和 chunking 图提醒我们：微调只是从预训练模型出发做任务适配，长文本或多轮样本进入训练前要先被切块、模板化和检查。本实验把它们重画为 LoRA smoke test 闭环。
 
-![Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg)
+```mermaid
+flowchart LR
+  A["base model"] --> B["messages JSONL"]
+  B --> C["chat template / length check"]
+  C --> D["5-step LoRA smoke test"]
+  D --> E["adapter files + train log"]
+  E --> F["base vs adapter prompt 对比"]
+  F --> G{"继续部署?"}
+  G -- "否" --> H["修数据或停止"]
+  G -- "是" --> I["merge / quantize / profiling"]
+```
 
-![Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg)
-
-| 原图重点 | 本实验吸收什么 | 转成哪个检查项 |
+| 来源图思路 | 本实验吸收什么 | 转成哪个检查项 |
 | --- | --- | --- |
-| fine-tuning | 微调从 base model 出发，产物要和原模型关系明确 | 记录 base model、adapter 路径、训练日志 |
-| chunking texts | 数据进入训练前要处理长度、边界和样本格式 | 检查 JSONL、`messages`、chat template、样本长度 |
+| [Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg) | 微调从 base model 出发，产物要和原模型关系明确 | 记录 base model、adapter 路径、训练日志 |
+| [Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg) | 数据进入训练前要处理长度、边界和样本格式 | 检查 JSONL、`messages`、chat template、样本长度 |
 | 任务适配 | 微调后必须用固定 prompt 验证是否真的改善目标任务 | base vs adapter 输出对比和继续/停止判断 |
 
 本实验的核心不是“训练出更强模型”，而是把微调路线纳入同一份部署证据链。
@@ -559,7 +567,7 @@ TypeError: SFTTrainer.__init__() got an unexpected keyword argument 'dataset_tex
 本章吸收方式：
 
 - **知识点**：从 PEFT、TRL、Qwen/LLaMA-Factory 和 chat template 文档吸收 SFT 数据、adapter、训练日志和部署 prompt 一致性。
-- **图解**：贴入 Hugging Face fine-tuning / chunking 原图，并把外部微调流程重画为 smoke test 检查表和部署回归链路。
+- **图解**：吸收 Hugging Face fine-tuning / chunking 图的结构，并把外部微调流程重画为 smoke test 检查表和部署回归链路。
 - **实验**：只要求短步数跑通、保存 adapter、对比输出并回到课程报告，不追求训练效果指标。
 - **取舍**：不新增长训练任务；微调是否继续由质量证据决定。
 

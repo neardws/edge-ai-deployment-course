@@ -113,19 +113,36 @@ flowchart LR
 
 DeepLearning.AI 的量化课程很适合作为本章的概念补强。课程不直接复制它的实验环境，而是吸收下面这些判断维度：
 
-### 外部课程原图参考
+### 本课程重绘：PTQ/QAT 到部署验证
 
-下面两张图来自 vLLM 官方博客中的 DeepLearning.AI/vLLM 课程截图。本课程用源站 URL 远程预览，后续会按 Qwen GGUF 主线重画；图中具体工具和实验环境不作为本课程要求。
+DeepLearning.AI/vLLM 课程截图把“量化方案”和“实验评估”放在同一条链路里。本课程把这件事重画成 Qwen/GGUF 的最小闭环：低比特文件只是中间产物，最终要回到同一套质量和性能证据。
 
-![DeepLearning.AI vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png)
+```mermaid
+flowchart LR
+  A["FP baseline"] --> B["固定评估 prompt"]
+  B --> C{"路线选择"}
+  C -- "PTQ" --> D["校准 / 统计范围"]
+  C -- "QAT / LoRA 修复" --> E["训练中模拟量化误差"]
+  D --> F["Q8 / Q5 / Q4 或 INT8 变体"]
+  E --> F
+  F --> G["llama.cpp / runtime 执行"]
+  G --> H["质量样例"]
+  G --> I["文件大小"]
+  G --> J["内存峰值"]
+  G --> K["TTFT / tokens/s"]
+  H --> L["保留 / 回退 / 修复"]
+  I --> L
+  J --> L
+  K --> L
+```
 
-![DeepLearning.AI vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png)
+这张图要求学生把“量化成功”改写成可检查的证据：同一模型、同一 prompt、同一设备、同一 runtime 下，质量、文件、内存和速度是否同时支持保留这个变体。
 
-| 原图重点 | 本章吸收什么 | 改成本课程里的什么 |
+| 来源图思路 | 本章吸收什么 | 改成本课程里的什么 |
 | --- | --- | --- |
-| 量化方案并列出现 | 量化不是单一路线，要区分格式、粒度、校准和 runtime | PTQ/QAT、Q8/Q5/Q4、INT8/INT4/NF4 的比较表 |
-| lab 从压缩走到评估 | 量化实验不能只生成文件，还要测质量和性能 | 校准集说明、固定 prompt、真实设备 profiling |
-| serving 课程把量化放进部署链路 | 低比特选择要服务最终 API 和报告 | Qwen GGUF -> llama.cpp -> local API -> 部署报告 |
+| [vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png) | 量化不是单一路线，要区分格式、粒度、校准和 runtime | PTQ/QAT、Q8/Q5/Q4、INT8/INT4/NF4 的比较表 |
+| [vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png) | 量化实验不能只生成文件，还要测质量和性能 | 校准集说明、固定 prompt、真实设备 profiling |
+| vLLM serving 课程结构 | 低比特选择要服务最终 API 和报告 | Qwen GGUF -> llama.cpp -> local API -> 部署报告 |
 
 | DeepLearning.AI 量化主题 | 本章写进来的判断问题 | 对应学生记录 |
 | --- | --- | --- |
@@ -617,7 +634,7 @@ Jetson 实作重点：
 本章吸收方式：
 
 - **知识点**：从 PyTorch、ONNX Runtime、TFLite、TensorRT、Transformers、DeepLearning.AI 量化课程和 Qwen/llama.cpp 中提取 PTQ/QAT、校准、量化对象、量化粒度和部署格式。
-- **图解**：远程贴入 vLLM/DeepLearning.AI 量化截图作为原图参考，再重画为“原模型 -> 校准/训练 -> 量化模型 -> 部署验证”的课程图。
+- **图解**：吸收 vLLM/DeepLearning.AI 量化截图中的实验结构，重画为“原模型 -> 校准/训练 -> 量化模型 -> 部署验证”的课程图。
 - **实验**：把外部方法收束到 Qwen GGUF 三组对比、校准集审查和 Jetson 记录。
 - **取舍**：不按框架 API 逐项讲解，也不默认低 bit 一定更快。
 

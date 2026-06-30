@@ -129,21 +129,30 @@ flowchart LR
 | Hugging Face Evaluate / OpenAI Evals | 指标、样例、评分规则和评估记录 | 用于设计课堂质量检查集和失败类型枚举 |
 | MLPerf Inference | 明确硬件、负载、指标和可复现报告 | 用于最终部署报告的证据格式，不引用外部成绩 |
 
-### 外部课程原图参考
+### 本课程重绘：质量回归证据链
 
-下面三张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。本章借用它们说明：质量修复不能只靠主观感觉，要看评估结果、输入分布和标签定义。
+Hugging Face 的评估、输入长度分布和 QA 标签示意图说明了同一件事：质量修复不能靠主观聊天感觉。本课程把这些图重画成一条 Qwen 量化后的质量回归证据链。
 
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["固定 prompt 集"] --> B["记录 token 数 / ctx-size"]
+  B --> C["运行 baseline: F16 或 Q8"]
+  B --> D["运行候选: Q5 / Q4 / 修复版"]
+  C --> E["输出 JSONL"]
+  D --> E
+  E --> F["规则检查 / 人工标签 / PPL"]
+  F --> G["失败类型: 格式 / 事实 / 拒答 / 幻觉"]
+  G --> H["修复动作: 校准 / 回退 / mixed precision / 数据修正"]
+  H --> I["重新 profiling"]
+```
 
-![Hugging Face review lengths](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/review-lengths.svg)
+读这张图时要注意两点：评估样本要先固定，失败类型要先定义。只有这样，Q4 比 Q8 差、修复后是否恢复、代价是否可接受，才有可复查证据。
 
-![Hugging Face QA labels](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/qa_labels.svg)
-
-| 原图重点 | 本章吸收什么 | 转成课程检查 |
+| 来源图思路 | 本章吸收什么 | 转成课程检查 |
 | --- | --- | --- |
-| 模型评估截图有任务和指标 | Q4/Q5 质量退化要用固定任务和指标说明 | 固定 prompt 集、规则检查、失败样例 |
-| 输入长度分布会影响结果 | 校准集和评估集要覆盖真实 prompt 长度 | prompt tokens、ctx-size、长短样本分层 |
-| QA 标签图强调标签定义 | 开放问答也要定义什么算正确、部分正确或失败 | 输出格式、事实性、拒答、幻觉类型 |
+| [Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | Q4/Q5 质量退化要用固定任务和指标说明 | 固定 prompt 集、规则检查、失败样例 |
+| [Hugging Face review lengths](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/review-lengths.svg) | 校准集和评估集要覆盖真实 prompt 长度 | prompt tokens、ctx-size、长短样本分层 |
+| [Hugging Face QA labels](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/qa_labels.svg) | 开放问答也要定义什么算正确、部分正确或失败 | 输出格式、事实性、拒答、幻觉类型 |
 
 Hugging Face Evaluate、lm-evaluation-harness 和 OpenAI Evals 这类资料的核心不是某个分数，而是“评估对象、样本、指标、评分器和日志”必须同时存在。本章把它们压成下面的质量回归表：
 
@@ -652,7 +661,7 @@ tegrastats --interval 1000 --logfile logs/jetson-qwen-quality.log
 本章吸收方式：
 
 - **知识点**：从 AWQ、SmoothQuant、LLM.int8、GPTQ 和评测工具中吸收“误差来源、敏感层、outlier、质量回归”的定位方法。
-- **图解**：直接贴入 Hugging Face Apache-2.0 模型评估、输入分布和 QA 标签原图作为参考，再把方法论文的动机重画为质量问题归因图和修复决策表。
+- **图解**：吸收 Hugging Face 模型评估、输入分布和 QA 标签图的结构，重画为质量问题归因图和修复决策表。
 - **实验**：要求保留失败样例、固定 prompt、原模型对照和量化版本回退证据。
 - **取舍**：不把单一指标当成质量结论，也不把所有质量问题都归因到量化。
 

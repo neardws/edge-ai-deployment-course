@@ -32,24 +32,25 @@ flowchart LR
 
 这意味着课程书不能只写“安装依赖并运行训练”。
 
-## 外部课程粒度原图参考
+## 课程重画图解
 
-下面几张图对应本页的写作标准：讲概念要能解释流程，讲实作要能保存模型来源和日志，讲验收要能处理 benchmark 和错误。
+外部 pipeline、model card、benchmark 和 traceback 示例对应本页的写作标准：讲概念要能解释流程，讲实作要能保存模型来源和日志，讲验收要能处理 benchmark 和错误。
 
-![Hugging Face full NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg)
-
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
-
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![Hugging Face traceback example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png)
+```mermaid
+flowchart LR
+  A["概念流程"] --> B["可复制命令"]
+  B --> C["模型来源记录"]
+  C --> D["benchmark 条件"]
+  D --> E["失败日志"]
+  E --> F["最终报告"]
+```
 
 | 原图重点 | 本页吸收什么 | 写作要求 |
 | --- | --- | --- |
-| pipeline | 概念图要解释真实流程 | 每章要有图示和最小示例 |
-| model card | 实作不是只跑命令，还要保存来源 | 实验页要记录模型、许可证、hash |
-| benchmarking lab | 结果必须绑定条件 | 表格要写 workload、硬件、参数、日志 |
-| traceback | 失败日志也是课程证据 | 常见问题和排障顺序不能省略 |
+| [pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg) | 概念图要解释真实流程 | 每章要有图示和最小示例 |
+| [model card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png) | 实作不是只跑命令，还要保存来源 | 实验页要记录模型、许可证、hash |
+| [benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | 结果必须绑定条件 | 表格要写 workload、硬件、参数、日志 |
+| [traceback](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png) | 失败日志也是课程证据 | 常见问题和排障顺序不能省略 |
 
 外部 lab handout 里的内容可以直接拆成下面几个块，贴进本课程对应章节后再改路径和模型：
 
@@ -248,7 +249,7 @@ tail -n 20 ~/edge-ai-lab/finetune/logs/qwen-lora-smoke.log
 本章吸收方式：
 
 - **知识点**：把公开教材、官方教程和项目课的粒度差异，整理成课程章节、实验章节和教师检查表的最低要求。
-- **图解**：贴入 pipeline、model card、benchmark 和 traceback 原图，并重画为“公开资料 -> 章节粒度标准 -> 实验记录 -> 最终报告”的 Mermaid 流程。
+- **图解**：吸收 pipeline、model card、benchmark 和 traceback 的结构，并重画为“公开资料 -> 章节粒度标准 -> 实验记录 -> 最终报告”的 Mermaid 流程。
 - **实验**：要求每个实验都能留下命令、日志、结果表和排障记录，并最终进入部署报告。
 - **取舍**：不把本页扩成写作规范大全，只保留能约束 Qwen GGUF、llama.cpp、量化、profiling、local API 和报告闭环的规则。
 

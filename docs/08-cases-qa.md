@@ -90,18 +90,25 @@ flowchart LR
 | 归因 | 是模型、量化、runtime、硬件还是系统问题 | “可能环境有问题” |
 | 下一步 | 重测哪一个变量，成功标准是什么 | “后续继续优化” |
 
-### 外部课程原图参考
+### 本课程重绘：案例复盘证据链
 
-下面两张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。本章用它们提醒学生：案例复盘要有评估口径和标签定义，不能只展示最好的一次输出。
+Hugging Face 的模型评估和 QA 标签图提醒学生：案例复盘要有评估口径和标签定义，不能只展示最好的一次输出。本章把它重画成项目复盘证据链。
 
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["baseline / quant / runtime 实验"] --> B["固定 workload"]
+  B --> C["结果表: latency / memory / quality"]
+  C --> D["失败样例"]
+  D --> E["标签: 正确 / 部分正确 / 失败"]
+  E --> F["归因: 模型 / 量化 / runtime / 设备"]
+  F --> G["下一步验证"]
+  G --> H["答辩证据"]
+```
 
-![Hugging Face QA labels](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/qa_labels.svg)
-
-| 原图重点 | 案例复盘吸收什么 | 转成课程输出 |
+| 来源图思路 | 案例复盘吸收什么 | 转成课程输出 |
 | --- | --- | --- |
-| 评估结果要绑定任务和指标 | 每个案例要写清 workload、metric 和条件 | 复盘表、评分建议、答辩证据 |
-| QA 标签要先定义 | 输出质量要有正确、部分正确、失败等分类 | 失败样例、质量备注、下一步验证 |
+| [Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | 每个案例要写清 workload、metric 和条件 | 复盘表、评分建议、答辩证据 |
+| [Hugging Face QA labels](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/qa_labels.svg) | 输出质量要有正确、部分正确、失败等分类 | 失败样例、质量备注、下一步验证 |
 | 外部评估图只是参考 | 不把别人的评估数字写进本课程结论 | 替换成自己的日志和固定 prompt 结果 |
 
 因此，本章把外部资料转成一套答辩规则：结论要能复现，失败要能归因，下一步要能执行。
@@ -363,7 +370,7 @@ VLM 和 Hybrid Agent 用于把课程从单模型部署扩展到系统架构。
 本章吸收方式：
 
 - **知识点**：从 llama.cpp、Qwen、Jetson、Nsight、MLPerf 和 ML Systems Book 吸收案例复盘、系统指标和报告证据链。
-- **图解**：直接贴入 Hugging Face Apache-2.0 model evaluation 和 QA labels 原图作为参考，再把外部 benchmark 和系统课程思路重画为项目复盘表、风险清单和评分建议。
+- **图解**：吸收 Hugging Face model evaluation 和 QA labels 图的结构，再把外部 benchmark 和系统课程思路重画为项目复盘表、风险清单和评分建议。
 - **实验**：最终复盘必须串起 baseline、量化、runtime、profiling、Jetson、服务化和失败样例。
 - **取舍**：不奖励最高单项数字，优先评估可复现、可解释、可改进的工程报告。
 

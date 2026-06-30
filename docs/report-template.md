@@ -50,18 +50,23 @@ flowchart LR
 | 量化课程的 INT4/INT8 解释 | “低 bit 一定更快” | Q8/Q5/Q4 对比表和质量备注 |
 | OpenAI-compatible API 文档 | “接口兼容就可上线” | HTTP 状态、响应 JSON、超时和 server 日志 |
 
-### 外部课程原图参考
+### 课程重画图解
 
-下面两张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。报告模板借用它们的写法：先说明数据和评估边界，再给模型结果。
+Hugging Face 的 dataset card 和 review length 示例启发了报告模板的写法：先说明数据和评估边界，再给模型结果。课程不嵌入原图，而是把这个逻辑重画成“报告字段从哪里来”的检查链。
 
-![Hugging Face dataset card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter5/dataset-card.png)
-
-![Hugging Face review lengths](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/review-lengths.svg)
+```mermaid
+flowchart LR
+  A["数据 / prompt 来源"] --> B["长度和覆盖范围"]
+  B --> C["量化与 runtime 结果"]
+  C --> D["质量和风险解释"]
+  D --> E["推荐方案"]
+  E --> F["附录证据"]
+```
 
 | 原图重点 | 模板吸收什么 | 写进报告哪里 |
 | --- | --- | --- |
-| 数据卡说明来源和限制 | prompt 集、校准集、评估集都要交代来源和覆盖范围 | 第 1、4、9 节 |
-| 数据长度分布影响性能和质量 | 长 prompt 与短 prompt 要分开解释 | 第 3-5 节和风险登记 |
+| [数据卡](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter5/dataset-card.png) 说明来源和限制 | prompt 集、校准集、评估集都要交代来源和覆盖范围 | 第 1、4、9 节 |
+| [review lengths](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/review-lengths.svg) 提醒长度影响性能和质量 | 长 prompt 与短 prompt 要分开解释 | 第 3-5 节和风险登记 |
 | 外部图只是格式参考 | 不引用外部数据分布作为本项目证据 | 附录放自己的统计和日志 |
 
 底线：报告不能把“跑过一次”写成“可以部署”。推荐方案至少要同时有量化对比、runtime/API 记录和风险登记支撑。
@@ -269,7 +274,7 @@ benchmark 证据索引：
 本章吸收方式：
 
 - **知识点**：从 benchmark、runtime 和 serving 文档吸收报告指标、条件记录、服务化证据和风险登记口径。
-- **图解**：直接贴入 Hugging Face Apache-2.0 dataset card 和 review-lengths 原图作为参考，再把外部评估方法重画为“资料口径 -> 课程证据 -> 风险登记 -> 部署建议 -> 附录”的报告链路。
+- **图解**：吸收 Hugging Face dataset card 和 review-lengths 的结构，重画为“资料口径 -> 课程证据 -> 风险登记 -> 部署建议 -> 附录”的报告链路。
 - **实验**：要求所有 Qwen GGUF、Q8/Q5/Q4、profiling 和 local API 结论都回到日志、表格或 JSON。
 - **取舍**：不引用外部榜单数字当作本课程结论，也不把报告模板扩成论文综述。
 

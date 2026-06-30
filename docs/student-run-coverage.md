@@ -29,24 +29,27 @@ flowchart LR
 | 最终报告模板 | 每个结论都要指向日志或附录 | “使用方式”的证据链 |
 | 公开运行记录仓库 | 脱敏命令、环境摘要和失败边界 | 主线覆盖表 |
 
-### 外部证据原图参考
+### 课程重画图解
 
-下面几张图说明为什么本页要把公开运行记录映射到报告章节：benchmark 需要固定条件，metrics 需要分开解释，traceback 和 evaluation 需要进入风险和质量结论。
+外部 benchmark、metrics、traceback 和 evaluation 示例说明为什么本页要把公开运行记录映射到报告章节：benchmark 需要固定条件，metrics 需要分开解释，traceback 和 evaluation 需要进入风险和质量结论。
 
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
-
-![Hugging Face traceback example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png)
-
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["benchmark 条件"] --> E["公开运行记录"]
+  B["metrics 字段"] --> E
+  C["traceback"] --> F["失败边界"]
+  D["evaluation"] --> G["质量边界"]
+  E --> H["报告章节"]
+  F --> H
+  G --> H
+```
 
 | 原图重点 | 本页吸收什么 | 覆盖索引怎么用 |
 | --- | --- | --- |
-| benchmarking lab | 运行记录要有 workload、模型、参数和硬件 | 主线覆盖表不能只写“跑过” |
-| vLLM metrics | 指标要分 prefill、decode、API 端到端 | 对应报告第 3、5、6 节 |
-| traceback | 失败记录也要保存和分类 | 对应第 7 节风险和排障 |
-| model evaluation | 质量结论要有任务和输出证据 | 对应第 4、8 节建议 |
+| [benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | 运行记录要有 workload、模型、参数和硬件 | 主线覆盖表不能只写“跑过” |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | 指标要分 prefill、decode、API 端到端 | 对应报告第 3、5、6 节 |
+| [traceback](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png) | 失败记录也要保存和分类 | 对应第 7 节风险和排障 |
+| [model evaluation](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | 质量结论要有任务和输出证据 | 对应第 4、8 节建议 |
 
 本页不是评分标准，也不替代学生自己的日志。它只说明：课程材料中的哪些判断已经有公开样例支撑。
 
@@ -89,7 +92,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从 benchmark、profiling 和报告模板吸收“指标、条件、日志、结论边界”这条证据口径。
-- **图解**：贴入 benchmark、metrics、traceback 和 evaluation 原图，并把外部评估方法重画为“公开资料 -> 运行记录 -> 报告章节 -> 结论边界”的覆盖图。
+- **图解**：吸收 benchmark、metrics、traceback 和 evaluation 的结构，并重画为“公开资料 -> 运行记录 -> 报告章节 -> 结论边界”的覆盖图。
 - **实验**：本页只映射课程公开运行记录，不新增实验要求。
 - **取舍**：不把公开样例数字写成学生自己的结果，也不把未测扩展伪装成已验证。
 

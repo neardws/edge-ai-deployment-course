@@ -85,24 +85,32 @@ flowchart LR
 | MLPerf / Nsight / llama-bench | 指标、条件、日志和复盘严谨性 | profiling、最终项目和案例复盘 |
 | VLM/Agent 资料 | 组件拆解、权限边界、端云协同和失败恢复 | Part VII 扩展与复盘 |
 
-### 外部课程原图速览
+### 本课程重绘：资料到实验的导读图
 
-下面几张图代表本课程吸收外部资料的四个方向：模型推理链路、LLM serving 结构、边缘设备形态和本地优先 Agent 架构。导读页先把它们放在一起，后续章节再分别展开。
+外部资料提供四个方向：模型推理链路、LLM serving 结构、边缘设备形态和本地优先 Agent 架构。导读页把它们重画成课程主线，后续章节再分别展开。
 
-![Hugging Face full NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg)
+```mermaid
+flowchart LR
+  A["外部资料"] --> B["推理链路"]
+  A --> C["量化 / serving"]
+  A --> D["边缘设备"]
+  A --> E["VLM / Agent"]
+  B --> F["Qwen baseline"]
+  C --> G["Q8/Q5/Q4 + profiling"]
+  D --> H["Ubuntu / Jetson 对照"]
+  E --> I["工具权限 / fallback"]
+  F --> J["部署报告"]
+  G --> J
+  H --> J
+  I --> J
+```
 
-![DeepLearning.AI 与 vLLM 课程结构](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png)
-
-![Jetson AI Lab 设备族示意](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png)
-
-![Microsoft Edge AI local-first agent architecture](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/arch.png)
-
-| 原图方向 | 本课程吸收什么 | 对应部分 |
+| 来源图方向 | 本课程吸收什么 | 对应部分 |
 | --- | --- | --- |
-| NLP pipeline | 推理链路由输入、tokenizer、model、后处理组成 | Part I、Qwen baseline、本地 API |
-| vLLM course structure | serving 需要指标、KV Cache、量化、benchmark 一起讲 | Part III、Part V、profiling |
-| Jetson 设备族 | 端侧硬件形态会影响内存、功耗、温度和部署方式 | Part II、Part VI |
-| local-first agent | 端侧模型要进入工具、权限、fallback 和观测体系 | Part VII、最终报告 |
+| [Hugging Face NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg) | 推理链路由输入、tokenizer、model、后处理组成 | Part I、Qwen baseline、本地 API |
+| [vLLM course structure](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png) | serving 需要指标、KV Cache、量化、benchmark 一起讲 | Part III、Part V、profiling |
+| [Jetson AI Lab 设备族](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png) | 端侧硬件形态会影响内存、功耗、温度和部署方式 | Part II、Part VI |
+| [Microsoft local-first agent](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/arch.png) | 端侧模型要进入工具、权限、fallback 和观测体系 | Part VII、最终报告 |
 
 这些外部材料可以先直接进入课程草稿，但进入正式讲义时必须变成本课程的证据链：
 
@@ -163,7 +171,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从 LLM、量化、runtime、Jetson、benchmark 和系统设计资料中吸收课程边界、学习顺序和工程判断。
-- **图解**：贴入 Hugging Face、vLLM、Jetson 和 Microsoft EdgeAI 原图，并把外部资料体系重画为“公开资料 -> 课程取舍 -> Qwen/llama.cpp 实作 -> 部署报告”的导读图。
+- **图解**：吸收 Hugging Face、vLLM、Jetson 和 Microsoft EdgeAI 原图结构，并把外部资料体系重画为“公开资料 -> 课程取舍 -> Qwen/llama.cpp 实作 -> 部署报告”的导读图。
 - **实验**：导读页只规定主线，后续实验落到 Qwen GGUF、Q8/Q5/Q4、profiling、local API 和最终报告。
 - **取舍**：不把公开课程目录、厂商 API、论文榜单或云端 serving 全量搬进课程。
 

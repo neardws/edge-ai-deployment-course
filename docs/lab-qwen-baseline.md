@@ -120,11 +120,18 @@ flowchart LR
 | Hugging Face 模型仓库和 model card | 模型来源、许可证、文件名和 hash 记录习惯 | “模型文件记录表”和部署报告证据 |
 | 课程服务器实跑记录 | 脱敏命令、环境摘要、结果摘要的写法 | 作为学生保存日志和解释失败原因的样例 |
 
-下面两张原图来自 [Hugging Face Course documentation-images dataset](https://huggingface.co/datasets/huggingface-course/documentation-images)，许可为 Apache-2.0。它们用于提醒学生：下载模型不是只复制一个 URL，还要看 model card、文件列表、许可证和具体权重文件。
+Hugging Face 的 model card 和文件列表图提醒学生：下载模型不是只复制一个 URL，还要看 model card、文件列表、许可证和具体权重文件。本实验把它们重画成 baseline 证据链。
 
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
-
-![Hugging Face model files example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/files.png)
+```mermaid
+flowchart LR
+  A["模型页面"] --> B["model id / license / usage notes"]
+  A --> C["files / revision / GGUF name"]
+  C --> D["本地文件: size + sha256"]
+  D --> E["llama.cpp 命令"]
+  E --> F["baseline 输出"]
+  F --> G["日志: prompt eval / eval / tokens/s"]
+  G --> H["后续 Q8/Q5/Q4 对照基准"]
+```
 
 外部模型页可以直接“贴进来”的不是网页正文，而是下面这些记录字段。学生拿到任意 Qwen GGUF 时，先把模型页、文件列表和本地文件核对成这张表，再继续跑 baseline。
 
@@ -509,7 +516,7 @@ baseline 质量不是绝对评分，而是后续量化对比的参照。
 本章吸收方式：
 
 - **知识点**：从 Qwen 和 llama.cpp 文档吸收模型来源、GGUF、构建、CLI 参数和基础推理日志。
-- **图解**：直接嵌入 Hugging Face Apache-2.0 model card / files 原图，再把官方运行步骤重画为“模型文件 -> llama.cpp -> baseline 输出 -> 报告字段”的实验链路。
+- **图解**：吸收 Hugging Face model card / files 图的结构，再把官方运行步骤重画为“模型文件 -> llama.cpp -> baseline 输出 -> 报告字段”的实验链路。
 - **实验**：要求记录模型来源、SHA256、固定 prompt、首 token、tokens/s 和失败原因。
 - **取舍**：不追逐更多模型族；baseline 只为后续量化、profiling 和服务化提供基准。
 

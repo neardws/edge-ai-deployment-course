@@ -128,19 +128,29 @@ flowchart LR
 
 Microsoft EdgeAI 的 Qwen 与 llama.cpp 模块把 Qwen 多尺寸、多部署路径和 GGUF 量化放在同一条本地 SLM 链路里。本实验把它收束为模型变体、量化文件、runtime 参数和质量证据四类记录。
 
-### 外部课程原图参考
+### 本课程重绘：Qwen 量化实验闭环
 
-下面两张图来自 vLLM 官方博客中的 DeepLearning.AI/vLLM 课程截图。本实验不改用 vLLM 工具链，只借用它对“量化方案”和“量化实验闭环”的表达。
+vLLM/DeepLearning.AI 课程截图把量化方案和实验评估放在一起。本实验不改用 vLLM 工具链，而是把这套结构重画成 Qwen GGUF 的对比闭环。
 
-![DeepLearning.AI vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png)
+```mermaid
+flowchart LR
+  A["baseline GGUF"] --> B["生成或选择 Q8 / Q5 / Q4"]
+  B --> C["记录文件: size / hash / quant_type"]
+  C --> D["同 prompt 运行"]
+  D --> E["质量样例"]
+  D --> F["tokens/s / timing"]
+  D --> G["内存 / 设备状态"]
+  E --> H["部署判断"]
+  F --> H
+  G --> H
+  H --> I["保留 / 回退 / 进入 local API"]
+```
 
-![DeepLearning.AI vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png)
-
-| 原图重点 | 本实验吸收什么 | 转成哪个记录字段 |
+| 来源图思路 | 本实验吸收什么 | 转成哪个记录字段 |
 | --- | --- | --- |
-| 量化方案要横向比较 | Q8/Q5/Q4 不能只看文件名 | `quant_type`、文件大小、来源、hash |
-| 量化实验要连接质量和效率 | Q4 更小不等于可部署 | 固定 prompt 输出、tokens/s、内存、失败样例 |
-| 量化要进入 serving/benchmark | CLI 成功后还要能服务化 | `llama-bench`、`llama-server` smoke test、报告建议 |
+| [vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png) | Q8/Q5/Q4 不能只看文件名 | `quant_type`、文件大小、来源、hash |
+| [vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png) | Q4 更小不等于可部署 | 固定 prompt 输出、tokens/s、内存、失败样例 |
+| serving / benchmark 链路 | CLI 成功后还要能服务化 | `llama-bench`、`llama-server` smoke test、报告建议 |
 
 | 选型问题 | 量化实验怎么回答 |
 | --- | --- |
@@ -468,7 +478,7 @@ python3 labs/scripts/parse_llama_log.py ~/edge-ai-lab/logs/qwen2.5-0.5b-instruct
 本章吸收方式：
 
 - **知识点**：从 Qwen 量化指南、llama.cpp quantize 文档、DeepLearning.AI/vLLM 课程截图和 Microsoft EdgeAI for Beginners 吸收 GGUF 量化格式、转换命令、量化命名、Qwen 变体和本地 SLM 部署链路。
-- **图解**：远程贴入 vLLM/DeepLearning.AI 量化方案和 lab 截图作为原图参考，再重画为“基线模型 -> 多量化版本 -> 同 prompt 对比 -> 部署判断”。
+- **图解**：吸收 vLLM/DeepLearning.AI 量化方案和 lab 截图的结构，再重画为“基线模型 -> 多量化版本 -> 同 prompt 对比 -> 部署判断”。
 - **实验**：固定 Q8/Q5/Q4 或教师指定变体，记录文件大小、内存、速度、质量备注和日志路径。
 - **取舍**：不把外部模型榜单写入结论；课程结论只来自自己的运行记录。
 

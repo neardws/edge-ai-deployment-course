@@ -120,21 +120,25 @@ flowchart LR
 | Jetson docs / JetPack | JetPack/L4T、功耗模式、板端监控口径 | 全套烧录和 BSP 开发流程 | JetPack/L4T、`nvpmodel`、`tegrastats` |
 | llama.cpp build docs | 后端开关、构建日志和运行参数 | 与本课无关的所有 backend 组合 | `GGML_CUDA=ON`、`-ngl`、llama.cpp commit |
 
-### 外部工具链原图参考
+### 本课程重绘：工具链边界
 
-下面几张图把工具链边界可视化：Jetson 是一组边缘硬件形态，MLC LLM 展示模型编译到 API 的跨平台链路，ExecuTorch 展示端侧 runtime 需要导出、lowering 和 backend。它们帮助本章说明“能跑在哪一层”，不是要求学生同时学习所有框架。
+Jetson、MLC LLM 和 ExecuTorch 的官方图都在提醒同一件事：模型能跑，不等于系统栈可复现。本章把它们重画为“操作系统 -> 驱动/CUDA -> runtime -> 模型命令”的依赖栈。
 
-![Jetson AI Lab 设备族示意](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png)
+```mermaid
+flowchart TD
+  A["操作系统 / L4T"] --> B["驱动 / CUDA / TensorRT"]
+  B --> C["构建工具: CMake / compiler / Python env"]
+  C --> D["runtime: llama.cpp / MLC / ExecuTorch"]
+  D --> E["backend: CPU / CUDA / Metal / Vulkan / NPU"]
+  E --> F["模型命令 / API 请求"]
+  F --> G["日志: commit / flags / device state"]
+```
 
-![MLC LLM project workflow](https://llm.mlc.ai/docs/_images/project-workflow.svg)
-
-![ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png)
-
-| 原图重点 | 本章吸收什么 | 工具链页怎么落地 |
+| 来源图思路 | 本章吸收什么 | 工具链页怎么落地 |
 | --- | --- | --- |
-| Jetson 设备族 | 不同边缘硬件的内存、功耗和软件栈不同 | JetPack/L4T、`nvpmodel`、`tegrastats` 必须记录 |
-| MLC workflow | 模型格式、编译产物、backend 和 API 是不同层 | 区分模型文件、runtime、server 和客户端请求 |
-| ExecuTorch stack | 端侧 PyTorch 路线有导出、lowering、backend 和 device runtime | 移动端作为扩展路线，不替代 llama.cpp 主线 |
+| [Jetson AI Lab 设备族](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png) | 不同边缘硬件的内存、功耗和软件栈不同 | JetPack/L4T、`nvpmodel`、`tegrastats` 必须记录 |
+| [MLC LLM workflow](https://llm.mlc.ai/docs/_images/project-workflow.svg) | 模型格式、编译产物、backend 和 API 是不同层 | 区分模型文件、runtime、server 和客户端请求 |
+| [ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png) | 端侧 PyTorch 路线有导出、lowering、backend 和 device runtime | 移动端作为扩展路线，不替代 llama.cpp 主线 |
 
 这张表的实用规则是: 看到“能跑”还不够, 必须能说明它跑在哪个后端、哪个设备、哪个功耗模式、哪个 commit、哪个模型文件上。否则后续量化和推理加速结果无法比较。
 
@@ -546,7 +550,7 @@ llama.cpp, Qwen 文档和低比特格式支持都在持续更新。没有 commit
 本章吸收方式：
 
 - **知识点**：从 Ubuntu、CUDA、Container Toolkit、Jetson/JetPack 和 llama.cpp 构建文档中提取 driver、runtime、编译后端和设备状态。
-- **图解**：贴入 Jetson、MLC 和 ExecuTorch 原图，把系统安装文档和官方工具链图压成“操作系统 -> 驱动/CUDA -> runtime -> 模型命令”的依赖栈。
+- **图解**：吸收 Jetson、MLC 和 ExecuTorch 原图的结构，把系统安装文档和官方工具链图压成“操作系统 -> 驱动/CUDA -> runtime -> 模型命令”的依赖栈。
 - **实验**：所有外部安装建议都转成可保存的环境快照、构建日志和 GPU/Jetson 状态记录。
 - **取舍**：不把本章写成 Linux 运维手册，只保留会影响 Qwen/llama.cpp 部署判断的检查项。
 

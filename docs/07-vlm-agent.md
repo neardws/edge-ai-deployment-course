@@ -58,15 +58,24 @@ flowchart LR
 | Jetson AI Lab / Jetson docs | 边缘视觉、功耗、温度和节点分工 | Jetson 作为采集、预处理、小模型和权限节点 |
 | ML Systems Book | 可靠性、状态、失败恢复和系统复盘 | 端云协同、状态管理和最终项目风险清单 |
 
-下面这张原图来自 [microsoft/edgeai-for-beginners](https://github.com/microsoft/edgeai-for-beginners)，许可为 MIT。它适合作为 Local-first Agent 系统参考：本地 SLM、工具编排、人类确认、多模态输出和 observability 不是单一模型能力，而是一组系统组件。
+Microsoft EdgeAI for Beginners 的 Local-first Agent 图适合作为系统参考：本地 SLM、工具编排、人类确认、多模态输出和 observability 不是单一模型能力，而是一组系统组件。本课程把它重画成下面的端侧 Agent 边界图。
 
-![Microsoft Edge AI local-first agent architecture](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/arch.png)
+```mermaid
+flowchart LR
+  A["用户输入: text / image"] --> B["本地 SLM / VLM"]
+  B --> C{"是否需要工具?"}
+  C -- "否" --> D["本地回答"]
+  C -- "是" --> E["tool schema + whitelist"]
+  E --> F{"高风险动作?"}
+  F -- "是" --> G["human confirmation"]
+  F -- "否" --> H["execute tool"]
+  G --> H
+  H --> I["tool result validation"]
+  I --> J["response + trace log"]
+  J --> K["cloud fallback policy"]
+```
 
-Microsoft 课程还提供了一张 Agent workflow 插图。图内个别英文只作为原课程视觉参考，本课程的工程判断仍以下面的权限表、状态表和失败恢复流程为准。
-
-![Microsoft Edge AI agent workflow illustration](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/lab2.png)
-
-把 Local-first Agent 原图贴进章节后，需要立刻落到三张课程表：组件表、权限表和证据表。这样学生看到的是系统边界，而不是把 Agent 当成一个“会自动做事”的模型。
+把 Local-first Agent 资料放进章节后，需要立刻落到三张课程表：组件表、权限表和证据表。这样学生看到的是系统边界，而不是把 Agent 当成一个“会自动做事”的模型。
 
 | 原图组件 | 本章吸收成 | 学生需要能说明 |
 | --- | --- | --- |
@@ -77,7 +86,7 @@ Microsoft 课程还提供了一张 Agent workflow 插图。图内个别英文只
 | Observability | 日志、trace、失败样例 | 保存哪些请求、工具结果和拒绝原因 |
 | Cloud fallback | 脱敏后复杂推理或知识补全 | 什么时候允许云端，断网时如何退化 |
 
-| 外部 VLM/Agent 资料 | 可以直接贴入的字段 | 本章转成的检查项 |
+| 外部 VLM/Agent 资料 | 可以吸收的字段 | 本章转成的检查项 |
 | --- | --- | --- |
 | HF 多模态任务页 | input type、processor、image size、generated text | VLM 组件拆解和视觉 token 估算 |
 | Qwen-VL / llama.cpp mtmd 文档 | language model、mmproj、image flag、backend | VLM smoke test 命令和 projector 风险 |
@@ -485,7 +494,7 @@ python3 labs/scripts/validate_agent_policy.py agent-policy.json
 本章吸收方式：
 
 - **知识点**：从 HF 多模态任务、Transformers、OpenAI Function Calling、Microsoft EdgeAI、Jetson AI Lab 和 ML Systems Book 吸收 VLM 组件、工具权限、端云协同和失败恢复。
-- **图解**：直接嵌入 Microsoft MIT 许可的 local-first agent 架构图和 workflow 插图，再把多模态和 Agent 资料重画为 VLM 推理链路、工具权限表和端云协同图。
+- **图解**：吸收 Microsoft MIT 许可的 local-first agent 架构图和 workflow 插图结构，再把多模态和 Agent 资料重画为 VLM 推理链路、工具权限表和端云协同图。
 - **实验**：VLM/Agent 任务必须记录视觉 token、延迟、工具白名单、确认策略和失败恢复。
 - **取舍**：不追逐快速变化的框架接口，也不把 demo 成功等同于产品可用。
 

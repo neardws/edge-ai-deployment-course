@@ -110,18 +110,30 @@ flowchart LR
 | llama.cpp quantize 文档中的 Q4/Q5/Q8 和 K-quants 格式 | “名义 bit-width 不等于实际文件大小”的 bpw 估算 | Qwen Q8/Q5/Q4 文件大小、内存和速度对比 |
 | 端侧 runtime 文档中的低比特 kernel 说明 | “变小不等于变快”的工程判断 | 最终报告同时记录文件、内存、tokens/s 和质量 |
 
-### 外部课程原图参考
+### 本课程重绘：量化方案最小描述
 
-下面两张图来自 vLLM 官方博客中展示的 DeepLearning.AI/vLLM 课程截图。本章只借用它们展示的分类粒度：量化方案要说明对象、bit-width、粒度和实验记录，而不是只写“用了 int4”。
+DeepLearning.AI/vLLM 课程截图提醒我们：量化方案不能只写“INT4”或“Q4”。本课程把那类对照图重画成一个检查表式流程：先说量化对象，再说 bit-width、粒度、校准和 runtime，最后才能进入实验记录。
 
-![DeepLearning.AI vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png)
+```mermaid
+flowchart LR
+  A["量化对象"] --> A1["weights"]
+  A --> A2["activations"]
+  A --> A3["KV Cache"]
+  A1 --> B["bit-width / block format"]
+  A2 --> B
+  A3 --> B
+  B --> C["粒度: tensor / channel / group"]
+  C --> D["参数: scale + zero-point / metadata"]
+  D --> E["执行: dequantize 或 low-bit kernel"]
+  E --> F["记录: 文件 / 内存 / 速度 / 质量"]
+```
 
-![DeepLearning.AI vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png)
+这张图的读法很简单：每个低比特结果都要能回答六个问题。量化了什么？几 bit？按什么粒度共享参数？参数怎么算？runtime 怎么执行？最终记录了哪些证据？
 
-| 原图重点 | 本章吸收什么 | 变成哪个课程要求 |
+| 来源图思路 | 本章吸收什么 | 变成哪个课程要求 |
 | --- | --- | --- |
-| quantization schemes | 量化方案要区分 weight、activation、KV Cache、粒度和格式 | scale/zero-point、per-tensor/per-channel/per-group、weight-only/KV Cache 表 |
-| quantization lab | 课程实验要把方法、运行参数和观测结果放在一起 | Qwen Q8/Q5/Q4 对比时同时写文件、内存、速度、质量 |
+| [vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png) | 量化方案要区分 weight、activation、KV Cache、粒度和格式 | scale/zero-point、per-tensor/per-channel/per-group、weight-only/KV Cache 表 |
+| [vLLM quantization lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-lab.png) | 课程实验要把方法、运行参数和观测结果放在一起 | Qwen Q8/Q5/Q4 对比时同时写文件、内存、速度、质量 |
 
 从 DeepLearning.AI、PyTorch、ONNX 和 llama.cpp 资料吸收数学内容时，本章只要求学生能把概念落到一个可算例子：
 

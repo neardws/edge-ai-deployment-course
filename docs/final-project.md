@@ -72,18 +72,23 @@ flowchart LR
 | quantization lab | 量化等级和质量/效率取舍 | GGUF 文件清单、质量样例、部署建议 |
 | system design case | 组件、fallback、风险 | 本地 API、VLM/Agent 扩展路线和权限边界 |
 
-### 外部课程原图参考
+### 课程重画图解
 
-下面两张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。本章借用它们说明：最终项目不仅要跑模型，还要交代数据来源、限制、评估方法和失败边界。
+Hugging Face 的 dataset card 和 model evaluation 示例启发了本章的验收口径：最终项目不仅要跑模型，还要交代数据来源、限制、评估方法和失败边界。课程不嵌入原图，而是把这个思路重画成报告证据链。
 
-![Hugging Face dataset card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter5/dataset-card.png)
-
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["数据 / prompt 来源"] --> B["覆盖范围和限制"]
+  B --> C["固定评估任务"]
+  C --> D["Qwen GGUF 实验记录"]
+  D --> E["失败类型和风险"]
+  E --> F["推荐 / 不推荐方案"]
+```
 
 | 原图重点 | 本项目吸收什么 | 转成报告字段 |
 | --- | --- | --- |
-| dataset card 写清数据来源和限制 | 项目 prompt、校准集、评估集不能只写“自定义数据” | 数据来源、许可证、覆盖范围、限制 |
-| model evaluation 有任务和指标 | 最终建议要基于固定评估，而不是一次好看的输出 | 指标、样例、失败类型、日志路径 |
+| [dataset card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter5/dataset-card.png) 写清数据来源和限制 | 项目 prompt、校准集、评估集不能只写“自定义数据” | 数据来源、许可证、覆盖范围、限制 |
+| [model evaluation](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) 有任务和指标 | 最终建议要基于固定评估，而不是一次好看的输出 | 指标、样例、失败类型、日志路径 |
 | 外部图只提供格式 | 不能把外部评估结果写成本项目结论 | 替换成自己的 Qwen GGUF 实验和 API 记录 |
 
 本章验收的不是“功能多”，而是“证据链闭合”：每个推荐和不推荐方案都能回到自己的日志、表格或运行记录。
@@ -227,7 +232,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从 ML Systems Book、MLPerf、llama.cpp、Qwen、Jetson、Nsight 和课程实跑记录中吸收系统指标、benchmark 严谨性、部署风险和证据链。
-- **图解**：直接贴入 Hugging Face Apache-2.0 dataset card 和 model evaluation 原图作为参考，再把外部评估资料重画为最终报告目录、评分维度、风险清单和结果记录模板。
+- **图解**：吸收 Hugging Face dataset card 和 model evaluation 的结构，重画为最终报告目录、评分维度、风险清单和结果记录模板。
 - **实验**：报告必须串起 Qwen baseline、量化对比、profiling、本地 API、Jetson/Ubuntu 对照和失败样例。
 - **取舍**：不引用外部 benchmark 数字作为结论；最终判断只基于学生自己的设备、日志和模型记录。
 

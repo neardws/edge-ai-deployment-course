@@ -10,11 +10,7 @@ title: 排障索引
 
 外部文档通常按工具或平台写排错：CUDA 文档看驱动，llama.cpp 文档看构建和模型参数，Jetson 文档看 JetPack、功耗和温度，benchmark/profiling 资料看指标和日志。本页把这些排错入口改写成课程自己的闭环：现象先归类，再回到 Qwen、GGUF、llama.cpp、Q8/Q5/Q4、profiling、local API 和最终报告。
 
-下面两张原图来自 [Hugging Face Course documentation-images dataset](https://huggingface.co/datasets/huggingface-course/documentation-images)，许可为 Apache-2.0。它们不是本课程的 Qwen 报错截图，但适合提醒学生：排障要先保留完整 traceback，并确认模型 ID、路径和文件名。
-
-![Hugging Face traceback example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png)
-
-![Hugging Face wrong model id example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/wrong-model-id.png)
+Hugging Face Course 的 [traceback](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png) 和 [wrong model id](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/wrong-model-id.png) 示例不是本课程的 Qwen 报错截图，但适合提醒学生：排障要先保留完整 traceback，并确认模型 ID、路径和文件名。课程正文用下面的图重画排障闭环。
 
 ```mermaid
 flowchart LR
@@ -116,7 +112,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从 CUDA、Jetson、llama.cpp、profiling 和 API 文档中吸收按层定位故障的边界。
-- **图解**：直接嵌入 Hugging Face Apache-2.0 traceback / wrong model id 原图，再重画为“现象 -> 归类 -> 原始日志 -> 报告风险”的 Mermaid 图。
+- **图解**：吸收 Hugging Face traceback / wrong model id 示例的排障结构，重画为“现象 -> 归类 -> 原始日志 -> 报告风险”的 Mermaid 图。
 - **实验**：所有排障建议都回到 Qwen GGUF、Q8/Q5/Q4、profiling、local API 或最终报告字段。
 - **取舍**：不复制厂商排错手册，不把重装环境当默认答案，也不引入自动诊断工具。
 

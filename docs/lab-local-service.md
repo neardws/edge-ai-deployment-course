@@ -128,17 +128,26 @@ flowchart LR
 
 Microsoft EdgeAI 的本地 SLM 部署资料提醒：local API 不只是“能返回文本”，还要能说明 endpoint、模型别名、stream、timeout、模型加载状态、硬件后端和日志边界。本实验把这些内容改成最低记录项。
 
-### 外部课程原图参考
+### 本课程重绘：Local API 记录链路
 
-下面这张图来自 vLLM 官方博客中的 DeepLearning.AI/vLLM 课程截图。本实验仍使用 `llama-server`，只吸收 serving metrics 的记录习惯。
+vLLM/DeepLearning.AI 的 metrics 图提醒我们：本地 API 不是“能返回文本”就结束。本实验仍使用 `llama-server`，把 serving 指标重画成最小 API 证据链。
 
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
+```mermaid
+flowchart LR
+  A["llama-server 启动"] --> B["backend / model / port 日志"]
+  B --> C["curl 或 Python 请求"]
+  C --> D["HTTP 状态 + JSON 响应"]
+  D --> E["elapsed / server timing"]
+  E --> F["资源监控"]
+  F --> G["CLI vs API 对照"]
+  G --> H["应用集成风险"]
+```
 
-| 原图重点 | 本实验吸收什么 | 转成哪个记录 |
+| 来源图思路 | 本实验吸收什么 | 转成哪个记录 |
 | --- | --- | --- |
-| serving 指标不止一个延迟 | API elapsed、TTFT、tokens/s 和资源占用要分开看 | curl/Python elapsed、server timing、monitor log |
-| metrics 来自服务链路 | CLI 快不代表 API 快 | CLI baseline vs local API smoke test |
-| 指标要能定位风险 | 慢请求、OOM、timeout 都要能回到日志 | HTTP 状态、错误 JSON、server stderr |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | API elapsed、TTFT、tokens/s 和资源占用要分开看 | curl/Python elapsed、server timing、monitor log |
+| serving metrics 链路 | CLI 快不代表 API 快 | CLI baseline vs local API smoke test |
+| failure metrics | 慢请求、OOM、timeout 都要能回到日志 | HTTP 状态、错误 JSON、server stderr |
 
 | 检查项 | 为什么重要 | 本实验最低记录 |
 | --- | --- | --- |
@@ -151,9 +160,7 @@ Microsoft EdgeAI 的本地 SLM 部署资料提醒：local API 不只是“能返
 | 错误响应 | 后续应用需要判断失败类型 | HTTP 状态、错误 JSON 或 server stderr 摘要 |
 | 隐私边界 | local-first 的价值来自数据留在本机或内网 | host 绑定、访问范围、是否调用外部云 API |
 
-MLC LLM 的官方教程也提供了本地引擎和 REST server 的接口截图。下面这张原图只作为 API 形态参考；本实验仍然用 `llama-server` 完成 OpenAI-compatible smoke test。
-
-![MLC LLM REST server API](https://raw.githubusercontent.com/mlc-ai/web-data/main/images/mlc-llm/tutorials/python-serve-request.jpg)
+MLC LLM 的官方教程也提供了本地引擎和 REST server 的接口形态。本实验吸收它的“runtime 可以暴露为 HTTP 服务”这一点，但仍用 `llama-server` 完成 OpenAI-compatible smoke test。
 
 把这类 serving 教程贴进本章时，建议统一改写成下面的验收字段，而不是照抄框架自己的代码：
 
@@ -540,7 +547,7 @@ API smoke test 的结果是 ______，主要新增开销或风险是 ______。
 本章吸收方式：
 
 - **知识点**：从 llama.cpp server、Qwen 文档、DeepLearning.AI/vLLM serving 截图和 Microsoft EdgeAI for Beginners 吸收 OpenAI-compatible API、server 参数、日志、模型生命周期和客户端请求形态。
-- **图解**：远程贴入 vLLM/DeepLearning.AI metrics 截图作为原图参考，再把命令行推理重画为“本地服务 -> HTTP 请求 -> 响应 JSON -> 应用集成”的链路。
+- **图解**：吸收 vLLM/DeepLearning.AI metrics 截图的结构，再把命令行推理重画为“本地服务 -> HTTP 请求 -> 响应 JSON -> 应用集成”的链路。
 - **实验**：API smoke test 必须记录请求、响应、HTTP 状态、elapsed/meta、server 日志和模型 hash。
 - **取舍**：不扩展成完整 Web 后端课程，只证明模型可以进入服务化接口。
 

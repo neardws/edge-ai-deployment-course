@@ -73,21 +73,24 @@ flowchart LR
 
 教师备课时应先保护主线，再安排扩展。扩展内容只有能回到最终报告证据链时才进入课堂。
 
-### 外部备课原图参考
+### 课程重画图解
 
-下面几张图适合教师备课时直接给学生看：模型来源要有卡片和文件证据，benchmark 要有固定条件，评估结果要能回到任务和数据。课堂不需要照搬外部数字，但要照搬这种证据意识。
+外部 model card、benchmark lab 和 model evaluation 示例适合提醒教师：模型来源要有卡片和文件证据，benchmark 要有固定条件，评估结果要能回到任务和数据。课堂不照搬外部数字，而是把这种证据意识重画成备课检查链。
 
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
-
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["模型来源证据"] --> B["benchmark 条件"]
+  B --> C["质量评估"]
+  C --> D["里程碑检查"]
+  D --> E["助教评分锚点"]
+  E --> F["最终报告验收"]
+```
 
 | 原图重点 | 教师页吸收什么 | 课堂检查项 |
 | --- | --- | --- |
-| model card | 模型名、许可证、文件和限制要一起记录 | 报告第 2 节模型来源 |
-| benchmarking lab | benchmark 要固定 workload、模型、参数和硬件 | M2-M4 里程碑日志 |
-| model evaluation | 质量评估要有任务、指标和条件 | 最终报告推荐/不推荐方案 |
+| [model card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png) | 模型名、许可证、文件和限制要一起记录 | 报告第 2 节模型来源 |
+| [benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | benchmark 要固定 workload、模型、参数和硬件 | M2-M4 里程碑日志 |
+| [model evaluation](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | 质量评估要有任务、指标和条件 | 最终报告推荐/不推荐方案 |
 
 ## 40 学时讲法
 
@@ -165,7 +168,7 @@ Qwen -> GGUF -> llama.cpp -> Q8/Q5/Q4 -> profiling -> local API -> final report
 本章吸收方式：
 
 - **知识点**：从公开课程结构、量化/serving 教程、Jetson 文档和 benchmark 资料中吸收备课边界。
-- **图解**：贴入 model card、benchmark 和 model evaluation 原图，并重画为“外部资料 -> 40/60 学时取舍 -> 里程碑和评分 -> 部署报告验收”的 Mermaid 图。
+- **图解**：吸收 model card、benchmark 和 model evaluation 的结构，重画为“外部资料 -> 40/60 学时取舍 -> 里程碑和评分 -> 部署报告验收”的 Mermaid 图。
 - **实验**：教师页把外部资料转成 Qwen GGUF、Q8/Q5/Q4、profiling、local API 和最终报告的课堂任务。
 - **取舍**：不把扩展路线变成必做项，不把外部 benchmark 数字用于评分。
 

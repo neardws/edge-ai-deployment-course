@@ -51,24 +51,25 @@ flowchart TD
 
 这张图强调：不同资料的价值不同。课程资料提供结构，论文提供方法动机，官方文档提供可靠术语和流程，工具项目提供可执行实验。
 
-## 外部原图如何进入取舍
+## 外部图解如何进入取舍
 
-下面的原图来自不同类型资料。本页把它们放在一起，是为了说明“贴图”也要有取舍：能帮助学生理解主线、证据和边界的图进入正文；只展示厂商能力或外部排名的图不进入课程结论。
+外部图来自不同类型资料。本页把它们放在一起，是为了说明“用图”也要有取舍：能帮助学生理解主线、证据和边界的图进入正文；只展示厂商能力或外部排名的图不进入课程结论。课程正文保留来源链接，并重画成下面的取舍流程。
 
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
-
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png)
-
-![Microsoft Edge AI local-first agent architecture](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/arch.png)
+```mermaid
+flowchart LR
+  A["外部图解"] --> B{"是否服务主线?"}
+  B -- "是" --> C["提取字段和结构"]
+  B -- "否" --> D["只保留参考链接"]
+  C --> E["重画为课程图 / 表"]
+  E --> F["映射到 Qwen 实验和报告"]
+```
 
 | 原图类型 | 可以吸收什么 | 取舍规则 |
 | --- | --- | --- |
-| model card | 模型来源、许可证、文件和限制 | 进入报告证据，不替代模型实测 |
-| benchmarking lab | workload、硬件、参数、结果绑定 | 学习记录口径，不复制外部数字 |
-| ExecuTorch stack | 端侧 runtime 有导出、lowering、backend、device 层 | 作为移动端路线，不扩成必做实验 |
-| local-first agent | 端侧 Agent 需要工具、权限、fallback 和观测 | 进入系统复盘，不做完整平台开发 |
+| [model card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png) | 模型来源、许可证、文件和限制 | 进入报告证据，不替代模型实测 |
+| [benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | workload、硬件、参数、结果绑定 | 学习记录口径，不复制外部数字 |
+| [ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png) | 端侧 runtime 有导出、lowering、backend、device 层 | 作为移动端路线，不扩成必做实验 |
+| [local-first agent](https://raw.githubusercontent.com/microsoft/edgeai-for-beginners/main/WorkshopForAgentic/imgs/arch.png) | 端侧 Agent 需要工具、权限、fallback 和观测 | 进入系统复盘，不做完整平台开发 |
 
 对外部资料做“先贴入、后取舍”时，按下面规则处理，避免后续改稿时混乱。
 
@@ -330,7 +331,7 @@ flowchart LR
 | 吸收维度 | 本页怎么处理 | 课程落点 |
 | --- | --- | --- |
 | 知识点 | 只保留会影响端侧部署判断的概念和边界 | Part I-VII 的章节定位 |
-| 图解 | 许可明确的原图可直接作为参考贴入；其余图示重画为课程自己的对比框架和主线图 | 导读、技术细纲、教师备课、原始资料暂存 |
+| 图解 | 保留来源链接，把图示结构重画为课程自己的对比框架和主线图 | 导读、技术细纲、教师备课、原始资料暂存 |
 | 实验 | 把可执行内容收束到 Qwen GGUF、量化、profiling、API 和报告 | Ubuntu / Jetson / 最终项目 |
 | 取舍 | 明确不复制外部目录、榜单、厂商 API 手册或完整平台课 | 40/60 学时裁剪和课程边界 |
 
@@ -339,7 +340,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从课程、论文、官方文档和工具项目中吸收结构、方法动机、术语和可执行实验。
-- **图解**：贴入 model card、benchmark、ExecuTorch 和 EdgeAI 原图；其余图示重画为资料类型对比、课程主线和资料吸收闭环三类 Mermaid 图。
+- **图解**：吸收 model card、benchmark、ExecuTorch 和 EdgeAI 的结构；其余图示重画为资料类型对比、课程主线和资料吸收闭环三类 Mermaid 图。
 - **实验**：所有可吸收内容必须能回到 Qwen、GGUF、llama.cpp、Q8/Q5/Q4、profiling、local API 或最终报告。
 - **取舍**：开放许可原图需保留来源和许可；不把外部正文、未授权图表或 benchmark 数字并入本课程结论。
 

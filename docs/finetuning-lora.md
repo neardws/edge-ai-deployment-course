@@ -44,15 +44,28 @@ title: 模型微调与 LoRA/QLoRA
 
 Hugging Face LLM Course、Transformers chat template、TRL/PEFT、Qwen/LLaMA-Factory 和中文后训练资料都会讲数据格式、训练入口、adapter 和部署参数。本章不复刻这些教程的 API 细节，而是把它们收束成一个端侧部署闭环：先判断是否需要微调，再用最小 LoRA smoke test 验证数据和训练链路，最后回到 GGUF、量化、profiling 和本地 API。
 
-以下两张原图来自 [Hugging Face Course documentation-images dataset](https://huggingface.co/datasets/huggingface-course/documentation-images)，许可为 Apache-2.0。先直接贴入本章，后续再改写成中文图解。
+Hugging Face 的 fine-tuning 和 chunking 图适合解释“模型适配”和“长文本切分”。本课程把它们重画成微调到部署的闭环：数据不是训练前处理完就结束，adapter 也不是训练完就自动可部署。
 
-![Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg)
+```mermaid
+flowchart LR
+  A["原始任务样本"] --> B["messages JSONL"]
+  B --> C["chat template 检查"]
+  C --> D["chunk / max length / eval split"]
+  D --> E["LoRA / QLoRA smoke test"]
+  E --> F["adapter + train logs"]
+  F --> G["base vs adapter 输出对比"]
+  G --> H{"值得部署?"}
+  H -- "否" --> I["修数据 / prompt / 评估"]
+  H -- "是" --> J["merge 或保留 adapter"]
+  J --> K["GGUF / 量化 / profiling / local API"]
+```
 
-这张图用于说明微调发生在预训练模型之后，但本课程还要继续追问：微调后的 adapter 是否值得合并、量化、profiling 和服务化。
+读这张图时重点看三个回环：数据格式错误要回到 `messages`，长文本问题要回到 chunk 和 `max_seq_length`，输出没有改善就不要进入合并和量化。
 
-![Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg)
-
-这张图用于提醒学生：长文本训练或评估不能随意拼接，chunk 长度会影响训练样本、上下文窗口、显存和后续部署输入长度。
+| 来源图思路 | 本章吸收什么 | 端侧部署追问 |
+| --- | --- | --- |
+| [Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg) | 微调发生在预训练模型之后 | adapter 是否值得合并、量化、profiling 和服务化 |
+| [Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg) | 长文本训练或评估不能随意拼接 | chunk 长度如何影响训练样本、上下文窗口、显存和部署输入长度 |
 
 ```mermaid
 flowchart LR
@@ -623,7 +636,7 @@ python llama.cpp/convert_hf_to_gguf.py \
 本章吸收方式：
 
 - **知识点**：从 Hugging Face LLM Course、chat templates、PEFT/TRL、Qwen/LLaMA-Factory、LoRA/QLoRA 中提取数据格式、adapter、训练入口和部署回归。
-- **图解**：直接嵌入 Hugging Face Apache-2.0 fine-tuning 和 chunking 原图，再把微调教程重画为“数据 -> template -> LoRA -> adapter -> 合并/量化 -> 部署验证”的闭环图。
+- **图解**：吸收 Hugging Face fine-tuning 和 chunking 图的结构，重画为“数据 -> template -> LoRA -> adapter -> 合并/量化 -> 部署验证”的闭环图。
 - **实验**：外部训练路线只落到 5-step smoke test、输出对比、adapter 保存和回到 llama.cpp 的部署检查。
 - **取舍**：不把课程变成完整训练课；微调必须服务于端侧部署质量问题。
 

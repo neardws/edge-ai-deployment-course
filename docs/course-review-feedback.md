@@ -330,24 +330,30 @@ flowchart LR
 | 学生反馈 | 哪些入口、字段和概念最容易卡住 | 本页初学者视角 |
 | 教师反馈 | 哪些边界、评分和助教口径需要收紧 | 本页教师视角 |
 
-### 外部反馈证据原图参考
+### 课程重画图解
 
-下面几张图代表本页常见反馈的来源：模型来源证据不清、benchmark 字段不完整、失败日志无法复盘、质量评估缺条件。本页把这些问题转成具体课程改动，而不是只保留口头建议。
+外部 model card、benchmark lab、traceback 和 model evaluation 示例代表本页常见反馈来源：模型来源证据不清、benchmark 字段不完整、失败日志无法复盘、质量评估缺条件。本页把这些问题重画为课程迭代链，而不是只保留口头建议。
 
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
-
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![Hugging Face traceback example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png)
-
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
+```mermaid
+flowchart LR
+  A["反馈材料 / 外部资料"] --> B["缺模型证据"]
+  A --> C["缺 benchmark 条件"]
+  A --> D["缺失败日志"]
+  A --> E["缺质量评估"]
+  B --> F["改章节字段"]
+  C --> F
+  D --> F
+  E --> F
+  F --> G["构建验证"]
+  G --> H["下一轮候选"]
+```
 
 | 原图重点 | 反馈页吸收什么 | 变成哪类改动 |
 | --- | --- | --- |
-| model card | 模型来源、许可证、hash 容易漏填 | 环境页、baseline、报告模板字段 |
-| benchmarking lab | 指标必须绑定条件和日志 | 量化、profiling、样例日志字段 |
-| traceback | 失败不能只写“运行失败” | 排障索引、风险登记表 |
-| model evaluation | 质量结论要有任务、指标和样例 | 样例报告、最终项目验收 |
+| [model card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png) | 模型来源、许可证、hash 容易漏填 | 环境页、baseline、报告模板字段 |
+| [benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | 指标必须绑定条件和日志 | 量化、profiling、样例日志字段 |
+| [traceback](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png) | 失败不能只写“运行失败” | 排障索引、风险登记表 |
+| [model evaluation](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | 质量结论要有任务、指标和样例 | 样例报告、最终项目验收 |
 
 后续继续从外部课程或学生反馈里搬材料时，按下面格式先贴入本页，再决定是否进入正文：
 
@@ -366,7 +372,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从公开课程、官方文档、benchmark 资料和课程实跑反馈中吸收可改进的概念、边界和验收口径。
-- **图解**：贴入 model card、benchmark、traceback 和 evaluation 原图，并重画为“资料/反馈 -> 问题分类 -> 章节改动 -> 验证 -> 下一轮候选”的 Mermaid 图。
+- **图解**：吸收 model card、benchmark、traceback 和 evaluation 的结构，重画为“资料/反馈 -> 问题分类 -> 章节改动 -> 验证 -> 下一轮候选”的 Mermaid 图。
 - **实验**：每轮反馈都要求回到 Qwen GGUF、Q8/Q5/Q4、profiling、local API、报告模板或排障记录。
 - **取舍**：不把反馈页变成需求池；只记录已经处理或明确进入下一轮候选的课程改动。
 

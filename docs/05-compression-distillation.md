@@ -128,26 +128,33 @@ flowchart LR
 | Distillation 和 DistilBERT 系列论文 | teacher/student、软标签、任务级能力迁移 | 用于设计蒸馏样例和第二阶段路线，不作为第一轮必做训练 |
 | Qwen、GGUF 和 llama.cpp 实验 | Q8/Q5/Q4 的真实部署证据 | 决定是否接受量化、换小模型、蒸馏或端云协同 |
 
-### 外部课程原图参考
+### 本课程重绘：压缩路线证据表
 
-下面这张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。本章用它提示学生：参数量是压缩问题的入口，但压缩路线必须继续落到真实 runtime 和设备日志。
+Hugging Face 的参数量、fine-tuning、chunking 和 evaluation 图适合当背景材料，但本课程要把它们压成一个路线判断：先定位瓶颈，再选择压缩或蒸馏手段，最后回到真实设备日志。
 
-![Hugging Face model parameters](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/model_parameters.png)
+```mermaid
+flowchart TD
+  A["部署不达标"] --> B{"主要瓶颈"}
+  B -- "权重文件 / 内存" --> C["量化 / 小模型 / 低秩"]
+  B -- "算子延迟" --> D["结构化剪枝 / 换架构 / runtime"]
+  B -- "质量不足" --> E["LoRA / 蒸馏 / mixed precision"]
+  B -- "长文本成本" --> F["chunking / RAG / ctx 策略"]
+  C --> G["Qwen 对比表"]
+  D --> G
+  E --> G
+  F --> G
+  G --> H["文件 / 内存 / tokens/s / 质量样例"]
+  H --> I["继续压缩 / 换模型 / 端云协同"]
+```
 
-![Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg)
+这张图避免一个常见误解：压缩不是把参数变少就结束。剪枝、蒸馏、换小模型和 chunking 都必须用同一张证据表复核，否则无法判断收益来自哪里。
 
-![Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg)
-
-![Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png)
-
-| 原图重点 | 本章吸收什么 | 转成课程判断 |
+| 来源图思路 | 本章吸收什么 | 转成课程判断 |
 | --- | --- | --- |
-| 参数量和模型规模相关 | 文件大小、内存和带宽压力通常随模型规模上升 | 先判断瓶颈是权重、KV Cache、算子还是质量 |
-| 参数少不等于部署快 | 剪枝、蒸馏和小模型选择都要看 runtime 支持 | 真实 tokens/s、内存、质量备注 |
-| fine-tuning 图 | 蒸馏、LoRA 和继续训练都属于模型适配路线 | 先写训练数据、教师/学生、adapter 或学生模型边界 |
-| chunking 图 | 长文本数据构造会影响训练样本和上下文预算 | 记录 chunk 长度、overlap、prompt template 和 ctx-size |
-| evaluation 图 | 压缩后不能只看模型是否能跑 | 固定 prompt、固定任务、输出样例和质量备注 |
-| 外部原图只给背景 | 不能用外部图或论文结果替代本机实验 | Qwen Q8/Q5/Q4、小模型替代和蒸馏路线表 |
+| [Hugging Face model parameters](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/model_parameters.png) | 文件大小、内存和带宽压力通常随模型规模上升 | 先判断瓶颈是权重、KV Cache、算子还是质量 |
+| [Hugging Face fine-tuning](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/finetuning.svg) | 蒸馏、LoRA 和继续训练都属于模型适配路线 | 先写训练数据、教师/学生、adapter 或学生模型边界 |
+| [Hugging Face chunking texts](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/chunking_texts.svg) | 长文本数据构造会影响训练样本和上下文预算 | 记录 chunk 长度、overlap、prompt template 和 ctx-size |
+| [Hugging Face model evaluation example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter7/model-eval-bert-finetuned-ner.png) | 压缩后不能只看模型是否能跑 | 固定 prompt、固定任务、输出样例和质量备注 |
 
 MIT 6.5940 / EfficientML 的可借鉴点不是某个单独算法，而是“先问瓶颈，再选压缩手段”。本章把它改成下面的课程判断表：
 
@@ -647,7 +654,7 @@ tegrastats --interval 1000 --logfile logs/jetson-compression-choice.log
 本章吸收方式：
 
 - **知识点**：从 EfficientML、蒸馏论文、剪枝教程和 TensorRT 稀疏性资料中提取模型侧压缩、teacher/student、结构稀疏和 runtime 可利用性的边界。
-- **图解**：直接贴入 Hugging Face Apache-2.0 参数量原图作为参考，再把压缩方法重画为“减少参数、减少计算、保持质量、需要 runtime 支持”的四类判断图。
+- **图解**：吸收 Hugging Face 参数量、微调、chunking 和评估图的结构，重画为“减少参数、减少计算、保持质量、需要 runtime 支持”的四类判断图。
 - **实验**：本章只把剪枝/蒸馏作为路线判断和报告讨论，主实验仍回到 Qwen GGUF 与部署评估。
 - **取舍**：不新增完整蒸馏训练项目，除非后续课程单独扩展。
 

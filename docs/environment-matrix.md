@@ -51,24 +51,32 @@ flowchart LR
 | iOS/macOS app | Core ML Tools、MLC LLM | 记录转换格式和 compute units；未做实机就不写推荐 |
 | 浏览器/WebGPU | MLC LLM | 记录浏览器、backend 和模型限制；不代替本地 API 结论 |
 
-### 外部路线原图参考
+### 本课程重绘：环境路线矩阵
 
-下面几张图直接展示了不同部署路线的形态：Jetson 设备族、LiteRT Android 架构、ExecuTorch 移动/端侧栈、MLC LLM 的编译与运行流程。本课程不把它们都变成必做实验，只把它们放进环境矩阵，提醒学习者报告里要写清“做了哪条路线、没做哪条路线”。
+Jetson、LiteRT、ExecuTorch 和 MLC LLM 的官方图展示了不同部署路线。本课程把它们重画成环境矩阵，提醒学习者报告里要写清“做了哪条路线、没做哪条路线”。
 
-![Jetson AI Lab 设备族示意](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png)
+```mermaid
+flowchart LR
+  A["课程环境"] --> B["Ubuntu GPU: 必做主线"]
+  A --> C["Jetson: 扩展实作"]
+  A --> D["Mac / WebGPU: 阅读或选做"]
+  A --> E["Android / iOS: 路线图"]
+  B --> F["Qwen GGUF + profiling + local API"]
+  C --> G["JetPack / tegrastats / 功耗模式"]
+  D --> H["MLC / Metal / browser backend"]
+  E --> I["LiteRT / ExecuTorch / Core ML"]
+  F --> J["最终报告环境表"]
+  G --> J
+  H --> J
+  I --> J
+```
 
-![LiteRT architecture](https://developer.android.com/static/images/ml/litert-architecture.svg)
-
-![ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png)
-
-![MLC LLM project workflow](https://llm.mlc.ai/docs/_images/project-workflow.svg)
-
-| 原图重点 | 本页吸收什么 | 矩阵字段 |
+| 来源图思路 | 本页吸收什么 | 矩阵字段 |
 | --- | --- | --- |
-| Jetson 设备族 | Jetson 不是单一硬件，型号、内存和功耗模式会改变结论 | Jetson 型号、JetPack/L4T、`nvpmodel`、`tegrastats` |
-| LiteRT architecture | Android 路线要写清 app、runtime、delegate 和硬件加速边界 | model format、delegate、CPU/GPU/NPU、未验证项 |
-| ExecuTorch stack | 移动端部署需要导出、lowering、runtime 和设备后端 | Android/iOS 路线标为扩展，不套用 Ubuntu 结论 |
-| MLC LLM workflow | 模型要经过编译/打包后进入不同前端或 runtime | Mac、浏览器、移动端字段必须写 backend 与未验证边界 |
+| [Jetson AI Lab 设备族](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png) | Jetson 不是单一硬件，型号、内存和功耗模式会改变结论 | Jetson 型号、JetPack/L4T、`nvpmodel`、`tegrastats` |
+| [LiteRT architecture](https://developer.android.com/static/images/ml/litert-architecture.svg) | Android 路线要写清 app、runtime、delegate 和硬件加速边界 | model format、delegate、CPU/GPU/NPU、未验证项 |
+| [ExecuTorch stack](https://docs.pytorch.org/executorch/stable/_images/executorch_stack.png) | 移动端部署需要导出、lowering、runtime 和设备后端 | Android/iOS 路线标为扩展，不套用 Ubuntu 结论 |
+| [MLC LLM workflow](https://llm.mlc.ai/docs/_images/project-workflow.svg) | 模型要经过编译/打包后进入不同前端或 runtime | Mac、浏览器、移动端字段必须写 backend 与未验证边界 |
 
 这页不替学习者判断“哪台机器最快”。它只要求把环境差异记录清楚，避免把 Ubuntu Server 上的结论直接套到 Jetson、CPU 或移动端。
 
@@ -161,7 +169,7 @@ Jetson：
 - **知识点**：从 Ubuntu/CUDA、Jetson、Qwen、llama.cpp 和 benchmark 资料中提取环境可复现字段。
 - **图解**：参考 Jetson、LiteRT、ExecuTorch 和 MLC LLM 的原图，把路线重画为“环境路径 -> Qwen GGUF 实验 -> profiling/API/report”的 Mermaid 图。
 - **实验**：把外部环境要求落到 `nvidia-smi`、JetPack/L4T、llama.cpp commit、模型 hash 和报告字段。
-- **取舍**：只嵌入外部原图作为路线参考，不引用外部 benchmark 数字作为本课程结论。
+- **取舍**：只保留外部路线图的结构和链接，不引用外部 benchmark 数字作为本课程结论。
 
 - [类似教材与教程参考](/docs/similar-courses)
 - [参考资料地图](/docs/reference-map)

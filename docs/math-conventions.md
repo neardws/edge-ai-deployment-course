@@ -31,21 +31,25 @@ flowchart LR
 | Roofline 论文和 runtime 优化资料 | 用算术强度判断 compute-bound / memory-bound | 解释低比特不一定更快 |
 | Hugging Face KV Cache、vLLM、LLM runtime 资料 | 用粗估公式说明 cache 随上下文增长 | `ctx-size`、长上下文、Jetson 内存风险 |
 
-### 外部公式原图参考
+### 本课程重绘：公式来源地图
 
-下面几张图帮助统一本课程的符号来源：量化方案决定 `scale` 和粒度怎么解释，KV Cache 决定上下文和内存公式怎么解释，metrics 图决定平均值、分位数和吞吐不能混写。
+外部资料帮助统一本课程的符号来源：量化方案决定 `scale` 和粒度怎么解释，KV Cache 决定上下文和内存公式怎么解释，metrics 图决定平均值、分位数和吞吐不能混写。
 
-![DeepLearning.AI vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png)
+```mermaid
+flowchart LR
+  A["公式约定"] --> B["量化: scale / zero-point"]
+  A --> C["KV Cache: context / batch / dtype"]
+  A --> D["指标: latency / throughput / P99"]
+  B --> E["Q8/Q5/Q4 误差说明"]
+  C --> F["ctx-size 和内存估算"]
+  D --> G["profiling 与 API 报告"]
+```
 
-![DeepLearning.AI vLLM KV cache](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png)
-
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
-
-| 原图重点 | 本页统一什么 | 后续使用 |
+| 来源图重点 | 本页统一什么 | 后续使用 |
 | --- | --- | --- |
-| quantization schemes | `scale`、`zero-point`、bit-width、量化对象 | Q8/Q5/Q4 误差和格式说明 |
-| KV Cache | `context`、`batch`、`bytes_per_value` 影响缓存 | `ctx-size`、长上下文、Jetson 内存估算 |
-| vLLM metrics | latency、throughput、tokens/s、P99 要分开 | profiling 表、API smoke test、最终报告 |
+| [vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png) | `scale`、`zero-point`、bit-width、量化对象 | Q8/Q5/Q4 误差和格式说明 |
+| [vLLM KV Cache](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png) | `context`、`batch`、`bytes_per_value` 影响缓存 | `ctx-size`、长上下文、Jetson 内存估算 |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | latency、throughput、tokens/s、P99 要分开 | profiling 表、API smoke test、最终报告 |
 
 公式页不是证明课。它的作用是让所有章节用同一套符号解释日志、表格和工程判断。
 
@@ -161,7 +165,7 @@ $$
 本章吸收方式：
 
 - **知识点**：从量化、benchmark、runtime、Roofline 和 KV Cache 资料中提取课程必须统一的公式口径。
-- **图解**：贴入 quantization、KV Cache 和 metrics 原图，并重画为“外部公式口径 -> Qwen 量化/profiling -> 部署报告”的 Mermaid 图。
+- **图解**：吸收 quantization、KV Cache 和 metrics 图示思路，并重画为“外部公式口径 -> Qwen 量化/profiling -> 部署报告”的 Mermaid 图。
 - **实验**：公式只服务 Q8/Q5/Q4 量化记录、P99/tokens/s、roofline 判断和 KV Cache 估算。
 - **取舍**：不展开完整数学证明，不复制外部推导，也不引入课程暂时不用的复杂统计口径。
 

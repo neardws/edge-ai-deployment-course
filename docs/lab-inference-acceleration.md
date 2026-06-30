@@ -113,21 +113,30 @@ flowchart LR
 | MLPerf Inference | 指标、负载、条件、结果一起报告 | 综合结果表必须写硬件、参数、日志和解释 |
 | 课程实跑记录 | 短 prompt 采样可能抓不到 GPU 峰值 | 提醒用连续采样或 `llama-bench` 补证据 |
 
-### 外部课程原图参考
+### 本课程重绘：一次只改一个变量
 
-下面的图来自 vLLM 官方博客中展示的 DeepLearning.AI/vLLM 课程截图。本实验仍以 llama.cpp 为主，只借用这些图里的结构化思路：先拆 prefill/decode/KV Cache，再把指标和 benchmark 记录清楚。
+vLLM/DeepLearning.AI 的课程结构、KV Cache 和 benchmarking 图提醒我们：推理加速要先拆变量，再看指标。本实验仍以 llama.cpp 为主，把这些结构重画为“一次只改一个变量”的实验流程。
 
-![DeepLearning.AI 与 vLLM 课程结构](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png)
+```mermaid
+flowchart LR
+  A["固定 baseline"] --> B{"选择一个变量"}
+  B -- "-ngl" --> C["GPU offload 对比"]
+  B -- "ctx-size" --> D["KV Cache / 首 token"]
+  B -- "quant" --> E["Q8/Q5/Q4"]
+  B -- "threads/batch" --> F["CPU/吞吐影响"]
+  C --> G["同 prompt 运行"]
+  D --> G
+  E --> G
+  F --> G
+  G --> H["timing + 资源 + 质量"]
+  H --> I["瓶颈是否移动"]
+```
 
-![KV Cache 课程示意](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png)
-
-![Benchmarking lab 课程截图](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-| 原图重点 | 本实验吸收什么 | 转成哪个实验字段 |
+| 来源图思路 | 本实验吸收什么 | 转成哪个实验字段 |
 | --- | --- | --- |
-| 课程结构图 | serving 课程会先讲指标、KV Cache、调度和 benchmark | 本实验把指标、KV Cache、`llama-bench` 分开记录 |
-| KV Cache 图 | 上下文长度不是免费参数，会改变缓存和内存压力 | `ctx-size` 对比表必须写首 token、内存和失败原因 |
-| Benchmarking lab 图 | benchmark 需要固定输入、硬件和运行条件 | `llama-bench` 结果表必须写硬件、模型、参数、日志 |
+| [vLLM course structure](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png) | serving 课程会先讲指标、KV Cache、调度和 benchmark | 本实验把指标、KV Cache、`llama-bench` 分开记录 |
+| [vLLM KV Cache](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png) | 上下文长度不是免费参数，会改变缓存和内存压力 | `ctx-size` 对比表必须写首 token、内存和失败原因 |
+| [vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | benchmark 需要固定输入、硬件和运行条件 | `llama-bench` 结果表必须写硬件、模型、参数、日志 |
 
 把 vLLM / TensorRT-LLM / MLPerf 里的性能思路落到本实验时，只保留四类变量：
 

@@ -151,21 +151,26 @@ flowchart LR
 | 磁盘和内存检查 | `df -h`、`free -h` | 模型下载和构建风险 |
 | 失败日志 | 命令、stderr、返回码 | 排障索引和报告第 7 节 |
 
-### 外部原图到环境证据链
+### 本课程重绘：环境证据链
 
-环境检查本身通常没有漂亮的课程图，但后续所有模型卡、benchmark 和错误日志都依赖它。下面三张图用于提醒学生：本章保存的环境字段会进入模型来源、性能记录和失败复盘。
+模型卡、benchmark 和 traceback 图都依赖一个前提：环境证据必须可复查。本实验把这些外部图的结构重画成服务器基线环境栈。
 
-![Hugging Face model card example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png)
+```mermaid
+flowchart LR
+  A["OS / kernel"] --> B["NVIDIA driver"]
+  B --> C["CUDA runtime / toolkit"]
+  C --> D["build tools: git / cmake / compiler"]
+  D --> E["模型文件: path / hash / license"]
+  E --> F["baseline / benchmark"]
+  F --> G["失败日志 / traceback"]
+  G --> H["后续实验报告"]
+```
 
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-![Hugging Face traceback example](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png)
-
-| 原图重点 | 本实验吸收什么 | 环境页怎么落地 |
+| 来源图思路 | 本实验吸收什么 | 环境页怎么落地 |
 | --- | --- | --- |
-| model card | 模型来源、许可证和文件证据要可追踪 | 记录模型来源、文件路径、hash 和许可证 |
-| benchmarking lab | benchmark 不能脱离硬件、runtime 和参数 | 记录 OS、driver、CUDA、CMake、Git、磁盘和日志路径 |
-| traceback | 失败日志必须能定位环境、依赖或模型问题 | 保存 `env-check.txt`、`nvidia-smi-before.txt` 和失败原因 |
+| [Hugging Face model card](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter4/model_card.png) | 模型来源、许可证和文件证据要可追踪 | 记录模型来源、文件路径、hash 和许可证 |
+| [vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | benchmark 不能脱离硬件、runtime 和参数 | 记录 OS、driver、CUDA、CMake、Git、磁盘和日志路径 |
+| [Hugging Face traceback](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter8/traceback.png) | 失败日志必须能定位环境、依赖或模型问题 | 保存 `env-check.txt`、`nvidia-smi-before.txt` 和失败原因 |
 
 所以，本章的产物不是“安装成功截图”，而是一组能解释后续实验成败的环境证据。
 
@@ -457,7 +462,7 @@ mv 路径/模型文件.gguf ~/edge-ai-lab/models/qwen/
 本章吸收方式：
 
 - **知识点**：从 Ubuntu、CUDA 和 Container Toolkit 文档提取驱动、CUDA、GPU 可见性和容器 GPU 访问的检查点。
-- **图解**：贴入 model card、benchmark 和 traceback 原图，把安装链路重画为服务器基线环境栈。
+- **图解**：吸收 model card、benchmark 和 traceback 图的结构，把安装链路重画为服务器基线环境栈。
 - **实验**：所有检查都落到环境摘要、GPU 状态和后续 Qwen baseline 的可追溯字段。
 - **取舍**：不做通用服务器运维课，只保留影响模型推理的依赖。
 

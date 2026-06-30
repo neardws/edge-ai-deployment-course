@@ -78,18 +78,26 @@ flowchart LR
 
 所以，40 学时不是“删掉实验”，而是删掉横向铺开；保留能完成部署报告的最短证据链。
 
-### 外部课程结构原图参考
+### 本课程重绘：40/60 学时取舍
 
-下面两张图分别代表 serving 课程和边缘设备课程的两个方向。本页吸收它们的结构，而不是照搬学时：40 学时保留能完成报告的证据链，60 学时再加入更多 serving、Jetson 和移动端扩展。
+Serving 课程和边缘设备课程给了两个扩展方向。本页吸收它们的结构，而不是照搬学时：40 学时保留能完成报告的证据链，60 学时再加入更多 serving、Jetson 和移动端扩展。
 
-![DeepLearning.AI 与 vLLM 课程结构](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png)
+```mermaid
+flowchart LR
+  A["40 学时"] --> B["Qwen baseline"]
+  B --> C["Q8/Q5/Q4"]
+  C --> D["profiling"]
+  D --> E["local API"]
+  E --> F["部署报告"]
+  A2["60 学时"] --> B
+  A2 --> G["Jetson 对照"]
+  A2 --> H["serving / VLM / Agent 扩展"]
+```
 
-![Jetson AI Lab 设备族示意](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png)
-
-| 原图重点 | 本页吸收什么 | 学时安排里的处理 |
+| 来源图重点 | 本页吸收什么 | 学时安排里的处理 |
 | --- | --- | --- |
-| vLLM course structure | serving 课程会把指标、KV Cache、调度、量化和 benchmark 串起来 | 40 学时保留 profiling/API/report，vLLM 作为扩展 |
-| Jetson device family | 边缘设备差异会影响功耗、温度、内存和稳定性 | 40 学时可任选设备，60 学时做设备对照 |
+| [vLLM course structure](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png) | serving 课程会把指标、KV Cache、调度、量化和 benchmark 串起来 | 40 学时保留 profiling/API/report，vLLM 作为扩展 |
+| [Jetson AI Lab 设备族](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png) | 边缘设备差异会影响功耗、温度、内存和稳定性 | 40 学时可任选设备，60 学时做设备对照 |
 
 ## 项目里程碑
 
@@ -219,7 +227,7 @@ gantt
 本章吸收方式：
 
 - **知识点**：从高效 AI、量化 serving、Jetson、runtime 和 benchmark 资料中吸收学时分配和裁剪边界。
-- **图解**：贴入 vLLM 课程结构和 Jetson 设备族原图，并把外部课程体量重画为 40 学时主线和 60 学时扩展的安排图。
+- **图解**：吸收 vLLM 课程结构和 Jetson 设备族图示思路，并重画为 40 学时主线和 60 学时扩展的安排图。
 - **实验**：40 学时仍保留 Qwen baseline、Q8/Q5/Q4、profiling、local API 和最终报告。
 - **取舍**：不把 vLLM、TensorRT-LLM、Android、完整 VLM/Agent 写进基础必做链路。
 

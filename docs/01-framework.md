@@ -116,19 +116,27 @@ flowchart LR
 | 端云协同和系统资料中的路由/fallback 思路 | 本地、云端、脱敏上传、受限返回的路由图 | local API、VLM/Agent 和最终复盘 |
 | 官方 runtime 文档中的后端和格式差异 | 模型、runtime、硬件、上下文、服务形态联合决策矩阵 | 避免只按模型文件大小选方案 |
 
-### 外部课程原图参考
+### 本课程重绘：端侧部署决策闭环
 
-下面两张图来自 Hugging Face Course documentation-images dataset，许可为 Apache-2.0。本章借用它们提醒学生：端侧部署判断不只看模型能不能跑，还要看参数规模、能耗、设备占用和长期成本。
+Hugging Face 的参数量和碳足迹图提醒学生：端侧部署判断不只看模型能不能跑，还要看参数规模、能耗、设备占用和长期成本。本章把它重画成课程决策闭环。
 
-![Hugging Face model parameters](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/model_parameters.png)
+```mermaid
+flowchart LR
+  A["模型能力需求"] --> B["模型规模 / 权重文件"]
+  B --> C["设备预算: 内存 / 功耗 / 温度"]
+  C --> D["runtime 与量化格式"]
+  D --> E["profiling: latency / tokens/s / memory"]
+  E --> F["质量与风险登记"]
+  F --> G{"部署判断"}
+  G -- "可接受" --> H["local API / 报告结论"]
+  G -- "不可接受" --> I["换模型 / 回退量化 / 端云协同"]
+```
 
-![Hugging Face carbon footprint](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/carbon_footprint.svg)
-
-| 原图重点 | 本章吸收什么 | 转成课程判断 |
+| 来源图思路 | 本章吸收什么 | 转成课程判断 |
 | --- | --- | --- |
-| 参数量影响资源需求 | 模型大小、内存、带宽和加载时间要一起看 | 模型能力与设备预算表 |
-| 碳足迹图强调训练/部署成本 | 端侧部署不是只追求速度，还要看能耗、散热和长期运行 | 功耗、温度、单位 token 能耗和风险登记 |
-| 生态图不等于部署结论 | 外部图只提供判断维度 | 结论必须回到 Qwen GGUF、profiling 和本地 API 证据 |
+| [Hugging Face model parameters](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/model_parameters.png) | 模型大小、内存、带宽和加载时间要一起看 | 模型能力与设备预算表 |
+| [Hugging Face carbon footprint](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter1/carbon_footprint.svg) | 端侧部署不是只追求速度，还要看能耗、散热和长期运行 | 功耗、温度、单位 token 能耗和风险登记 |
+| 外部生态图 | 外部图只提供判断维度 | 结论必须回到 Qwen GGUF、profiling 和本地 API 证据 |
 
 这张表要求每个方案都回答“为什么要端侧”和“证据在哪里”。如果某个方案只有命令能跑、没有指标阈值、没有设备日志、没有失败样例, 它还不是可评审的部署方案。
 
@@ -360,7 +368,7 @@ sudo jetson_clocks --show
 本章吸收方式：
 
 - **知识点**：从 ML Systems Book、MIT/EfficientML 和 Jetson 文档吸收“指标、硬件约束、部署生命周期”三类判断框架。
-- **图解**：直接贴入 Hugging Face Apache-2.0 参数量与碳足迹原图作为参考，再把外部系统图重画为端侧部署决策闭环和端云协同路由图。
+- **图解**：吸收 Hugging Face 参数量与碳足迹图的结构，再把外部系统图重画为端侧部署决策闭环和端云协同路由图。
 - **实验**：把框架落到目标设备、验收指标、风险清单和后续 Qwen/Jetson 实验记录。
 - **取舍**：不展开完整 MLOps 平台治理，也不把 Jetson 写成唯一端侧路线。
 

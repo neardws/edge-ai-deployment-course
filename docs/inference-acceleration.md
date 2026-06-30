@@ -99,7 +99,7 @@ sequenceDiagram
 
 ## 公开资料怎么转成本章内容
 
-vLLM、TensorRT-LLM、TensorRT、llama.cpp、MLPerf 和 Nsight 的资料都能讲推理性能。本章先贴入部分课程截图作为视觉参考，但不把外部 benchmark 图或厂商性能表当作课程结论。这里把外部资料改写成一个课堂可执行的问题：同一个 Qwen GGUF 模型，在同一设备上改变 `-ngl`、`ctx-size`、量化格式和服务形态时，瓶颈到底移动到了哪里。
+vLLM、TensorRT-LLM、TensorRT、llama.cpp、MLPerf 和 Nsight 的资料都能讲推理性能。本章不把外部 benchmark 图或厂商性能表当作课程结论，而是把外部资料改写成一个课堂可执行的问题：同一个 Qwen GGUF 模型，在同一设备上改变 `-ngl`、`ctx-size`、量化格式和服务形态时，瓶颈到底移动到了哪里。
 
 ```mermaid
 flowchart LR
@@ -123,21 +123,34 @@ flowchart LR
 | Nsight Systems | CPU/GPU 时间线和系统级 profiling | 作为进阶排查工具，课堂先用日志和监控命令 |
 | Qwen llama.cpp 文档 | Qwen 本地运行和量化路径 | 保持所有加速实验回到同一模型主线 |
 
-### 外部课程原图参考
+### 本课程重绘：加速实验闭环
 
-下面三张图来自 vLLM 官方博客中的 DeepLearning.AI/vLLM 课程截图。本章用它们提醒学生：推理加速不是单一参数调优，而是课程结构、KV Cache 和 metrics 三件事共同决定。
+vLLM/DeepLearning.AI 的课程结构、KV Cache 和 metrics 图提醒我们：推理加速不是单一参数调优。本课程把它重画成 Qwen GGUF 的轻量闭环：压缩、服务、压测和质量记录必须放在同一张证据链里。
 
-![DeepLearning.AI vLLM course structure](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png)
+```mermaid
+flowchart LR
+  A["Qwen GGUF baseline"] --> B["变体: Q8 / Q5 / Q4"]
+  B --> C["runtime 参数: -ngl / ctx / threads"]
+  C --> D["执行形态: CLI / llama-bench / local API"]
+  D --> E["指标分账"]
+  E --> E1["TTFT / prompt eval"]
+  E --> E2["decode tokens/s"]
+  E --> E3["API elapsed"]
+  E --> E4["memory / KV Cache"]
+  E1 --> F["瓶颈判断"]
+  E2 --> F
+  E3 --> F
+  E4 --> F
+  F --> G["保留参数 / 回退 / 换 runtime"]
+```
 
-![DeepLearning.AI vLLM KV cache](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png)
+读图时先分账再下结论：`llama-bench` 的 tokens/s、CLI 的 prompt/eval 时间、HTTP API 的 elapsed、设备内存和 KV Cache 风险不能混成一个“速度变快了”。
 
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
-
-| 原图重点 | 本章吸收什么 | 本课程里的动作 |
+| 来源图思路 | 本章吸收什么 | 本课程里的动作 |
 | --- | --- | --- |
-| 课程结构覆盖压缩、服务、评估 | 加速实验要贯穿 Qwen 量化、server 和报告 | 把 Q8/Q5/Q4、`llama-server`、profiling 放进同一闭环 |
-| KV Cache 图强调状态增长 | 长上下文瓶颈不能只靠权重量化解释 | 固定并记录 `ctx-size`、prompt tokens、generated tokens |
-| metrics 图强调 serving 口径 | TTFT、tokens/s、throughput、P99 不是同一个指标 | CLI、`llama-bench` 和 API elapsed 分开记录 |
+| [vLLM course structure](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/course-structure.png) | 加速实验要贯穿 Qwen 量化、server 和报告 | 把 Q8/Q5/Q4、`llama-server`、profiling 放进同一闭环 |
+| [vLLM KV Cache](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/kv-cache.png) | 长上下文瓶颈不能只靠权重量化解释 | 固定并记录 `ctx-size`、prompt tokens、generated tokens |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | TTFT、tokens/s、throughput、P99 不是同一个指标 | CLI、`llama-bench` 和 API elapsed 分开记录 |
 
 DeepLearning.AI/vLLM serving 课程的价值在于把“压缩、服务、压测”连成一条闭环。本课程对应到更轻量的本地版本：
 
@@ -485,7 +498,7 @@ tegrastats --interval 1000 --logfile ~/edge-ai-lab/logs/tegrastats-accel.log
 本章吸收方式：
 
 - **知识点**：从 llama.cpp、TensorRT、TensorRT-LLM、vLLM、DeepLearning.AI serving 课程、MLPerf 和 Roofline 中提取 prefill/decode、KV 管理、kernel、内存带宽和 benchmark 口径。
-- **图解**：远程贴入 vLLM/DeepLearning.AI 课程结构、KV Cache 和 metrics 截图作为原图参考，再重画为瓶颈定位分层图和首 token/tokens/s 拆分图。
+- **图解**：吸收 vLLM/DeepLearning.AI 课程结构、KV Cache 和 metrics 截图的结构，再重画为瓶颈定位分层图和首 token/tokens/s 拆分图。
 - **实验**：把加速方法转成 `-ngl`、ctx、threads、llama-bench、CLI/API 对照和 profiling 记录。
 - **取舍**：不要求全员搭建高并发 serving 集群，重点是能解释本地部署为什么慢。
 

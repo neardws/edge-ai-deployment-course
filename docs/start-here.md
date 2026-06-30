@@ -79,18 +79,23 @@ flowchart LR
 
 所以，首次学习的原则是：先拿到一条能跑、能比较、能写报告的证据链，再回头读资料地图做扩展。
 
-### 外部原图速览
+### 本课程重绘：第一次学习路径
 
-第一次学习不需要读完所有外部课程，但可以先看这两类图：一类解释 LLM 推理链路，一类解释 serving/benchmark 课程为什么要把指标和报告连起来。
+第一次学习不需要读完所有外部课程，只要先抓住两件事：LLM 推理是链路，benchmark 结果必须绑定 workload、硬件、模型和参数。
 
-![Hugging Face full NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg)
+```mermaid
+flowchart LR
+  A["先跑 baseline"] --> B["保存输入和日志"]
+  B --> C["做 Q8/Q5/Q4 对比"]
+  C --> D["profiling + 资源监控"]
+  D --> E["local API smoke test"]
+  E --> F["部署报告"]
+```
 
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-| 原图重点 | 本页先吸收什么 | 第一次学习怎么用 |
+| 来源图重点 | 本页先吸收什么 | 第一次学习怎么用 |
 | --- | --- | --- |
-| NLP pipeline | 输入、模型和后处理是一个链路 | baseline 不是只看模型输出，还要保存输入和日志 |
-| Benchmarking lab | 结果必须绑定 workload、硬件、模型和参数 | 做 Q8/Q5/Q4 后必须填结果表和报告 |
+| [Hugging Face NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg) | 输入、模型和后处理是一个链路 | baseline 不是只看模型输出，还要保存输入和日志 |
+| [vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | 结果必须绑定 workload、硬件、模型和参数 | 做 Q8/Q5/Q4 后必须填结果表和报告 |
 
 ## 适合谁
 
@@ -223,7 +228,7 @@ mkdir -p ~/edge-ai-lab/{env,models,repos,scripts,logs,results,report}
 本章吸收方式：
 
 - **知识点**：从 LLM 入门、runtime、量化、serving 和 benchmark 资料中抽出学习顺序。
-- **图解**：贴入 Hugging Face pipeline 和 vLLM benchmarking 原图，并把外部资料重画为“公开资料 -> 主线 -> baseline -> 量化/profiling -> local API -> 报告”的入口路径。
+- **图解**：吸收 Hugging Face pipeline 和 vLLM benchmarking 图结构，并把外部资料重画为“公开资料 -> 主线 -> baseline -> 量化/profiling -> local API -> 报告”的入口路径。
 - **实验**：入口页只指向已有实验章节，不新增命令。
 - **取舍**：首次学习先跳过扩展资料，避免把课程展开成厂商文档索引。
 

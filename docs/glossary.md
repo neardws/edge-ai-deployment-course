@@ -30,24 +30,28 @@ flowchart LR
 | vLLM / serving / OpenAI-compatible API 资料 | TTFT、throughput、P50/P99、服务开销 | 区分 CLI 指标和 API 端到端体验 |
 | Jetson / MLPerf / Nsight / llama-bench | fallback、thermal throttling、指标条件 | 写入 profiling、排障和最终报告风险 |
 
-### 外部术语原图参考
+### 本课程重绘：术语分类图
 
-下面四张图分别对应本课程术语表里的四类词：输入链路、量化对象、服务指标和边缘设备。学生遇到不熟悉的词时，先判断它属于哪一类，再回到具体章节。
+外部图分别对应本课程术语表里的四类词：输入链路、量化对象、服务指标和边缘设备。学生遇到不熟悉的词时，先判断它属于哪一类，再回到具体章节。
 
-![Hugging Face full NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg)
+```mermaid
+flowchart LR
+  A["术语"] --> B["输入链路"]
+  A --> C["量化对象"]
+  A --> D["服务指标"]
+  A --> E["边缘设备"]
+  B --> B1["tokenizer / template / post-processing"]
+  C --> C1["scale / zero-point / KV Cache"]
+  D --> D1["TTFT / tokens/s / throughput"]
+  E --> E1["JetPack / power / thermal"]
+```
 
-![DeepLearning.AI vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png)
-
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
-
-![Jetson AI Lab 设备族示意](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png)
-
-| 原图重点 | 对应术语 | 用来回答什么问题 |
+| 来源图重点 | 对应术语 | 用来回答什么问题 |
 | --- | --- | --- |
-| NLP pipeline | tokenizer、pipeline、post-processing | 输入输出到底经过哪些步骤 |
-| quantization schemes | scale、zero-point、weight-only、KV Cache | Q8/Q5/Q4 到底量化了什么 |
-| vLLM metrics | TTFT、tokens/s、throughput、latency | 一个速度数字是否足够说明问题 |
-| Jetson 设备族 | JetPack、功耗、温度、thermal throttling | 服务器结果能否迁移到边缘设备 |
+| [Hugging Face NLP pipeline](https://huggingface.co/datasets/huggingface-course/documentation-images/resolve/main/en/chapter2/full_nlp_pipeline.svg) | tokenizer、pipeline、post-processing | 输入输出到底经过哪些步骤 |
+| [vLLM quantization schemes](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/quantization-schemes.png) | scale、zero-point、weight-only、KV Cache | Q8/Q5/Q4 到底量化了什么 |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | TTFT、tokens/s、throughput、latency | 一个速度数字是否足够说明问题 |
+| [Jetson AI Lab 设备族](https://www.jetson-ai-lab.com/images/hero/jetson-family-line_50pcnt.png) | JetPack、功耗、温度、thermal throttling | 服务器结果能否迁移到边缘设备 |
 
 术语表不是百科。每个词都要能回答一个工程问题：它影响哪个命令、哪个日志字段、哪张表，或者最终报告中的哪类判断。
 
@@ -102,7 +106,7 @@ flowchart LR
 本章吸收方式：
 
 - **知识点**：从 LLM、量化、runtime、serving、Jetson 和 benchmark 资料中提取会影响实验判断的术语。
-- **图解**：贴入 pipeline、quantization、metrics 和 Jetson 原图，并重画为“术语来源 -> Qwen/量化/profiling/API -> 部署结论”的 Mermaid 图。
+- **图解**：吸收 pipeline、quantization、metrics 和 Jetson 图示思路，并重画为“术语来源 -> Qwen/量化/profiling/API -> 部署结论”的 Mermaid 图。
 - **实验**：每个术语都对应 Qwen GGUF、Q8/Q5/Q4、profiling、local API 或最终报告字段。
 - **取舍**：不做完整术语百科，不复制外部定义，也不收录本课程不会用到的厂商 API 名词。
 

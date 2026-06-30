@@ -121,19 +121,27 @@ flowchart LR
 
 vLLM 课程的 benchmark lab 提醒我们：压测结果必须同时说明负载形状和质量边界。本实验不引入 GuideLLM，但保留它的记录习惯：
 
-### 外部课程原图参考
+### 本课程重绘：Profiling 记录闭环
 
-下面两张图来自 vLLM 官方博客中的 DeepLearning.AI/vLLM 课程截图。本实验不要求复现图中的工具，只把 metrics 和 benchmarking lab 的记录口径搬到 Qwen/llama.cpp 日志里。
+vLLM/DeepLearning.AI 的 metrics 和 benchmarking lab 图提醒我们：压测结果必须同时说明负载形状、指标口径和质量边界。本实验不复现图中的工具，而是把记录口径搬到 Qwen/llama.cpp 日志里。
 
-![DeepLearning.AI vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png)
+```mermaid
+flowchart LR
+  A["固定 workload"] --> B["命令 stdout/stderr"]
+  A --> C["系统采样: nvidia-smi / tegrastats"]
+  B --> D["解析 timing: prompt / eval / elapsed"]
+  C --> E["资源: VRAM/RAM/温度/功耗"]
+  D --> F["结果表"]
+  E --> F
+  F --> G["质量样例和失败日志"]
+  G --> H["优化建议"]
+```
 
-![DeepLearning.AI vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png)
-
-| 原图重点 | 本实验吸收什么 | 转成哪个证据 |
+| 来源图思路 | 本实验吸收什么 | 转成哪个证据 |
 | --- | --- | --- |
-| metrics 要区分层级 | API elapsed、TTFT、tokens/s、throughput 不混写 | timing log、curl 计时、结果总表 |
-| benchmark 要说明负载 | 并发、prompt 长度、生成长度会改变结论 | prompt 文件、`-p/-n`、ctx、并发说明 |
-| benchmark 还要看质量 | 更快不等于更可用 | 固定输出样例、质量备注、失败日志 |
+| [vLLM metrics](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/vllm-metrics.png) | API elapsed、TTFT、tokens/s、throughput 不混写 | timing log、curl 计时、结果总表 |
+| [vLLM benchmarking lab](https://raw.githubusercontent.com/vllm-project/vllm-project.github.io/main/assets/figures/2026-06-03-deeplearning-ai-course/benchmarking-lab.png) | 并发、prompt 长度、生成长度会改变结论 | prompt 文件、`-p/-n`、ctx、并发说明 |
+| benchmark 质量边界 | 更快不等于更可用 | 固定输出样例、质量备注、失败日志 |
 
 | Profiling 维度 | 记录什么 | 没记录会怎样 |
 | --- | --- | --- |
@@ -493,7 +501,7 @@ grep -i "warning\\|fallback\\|error\\|oom" ~/edge-ai-lab/logs/qwen-baseline-q4.t
 本章吸收方式：
 
 - **知识点**：从 llama-bench、Nsight、MLPerf、DeepLearning.AI/vLLM benchmark lab、CUDA 和 Jetson 文档吸收 profiling 边界、采样工具和报告严谨性。
-- **图解**：远程贴入 vLLM/DeepLearning.AI metrics 和 benchmarking lab 截图作为原图参考，再重画为“命令日志、系统采样、结果表、结论”的记录闭环。
+- **图解**：吸收 vLLM/DeepLearning.AI metrics 和 benchmarking lab 截图的结构，再重画为“命令日志、系统采样、结果表、结论”的记录闭环。
 - **实验**：要求保留 stdout/stderr、`nvidia-smi` 或 `tegrastats`、解析表和失败样例。
 - **取舍**：不做竞赛级 benchmark，也不把截图当作唯一证据。
 
