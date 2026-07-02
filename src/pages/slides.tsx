@@ -14,7 +14,9 @@ export default function Slides(): ReactNode {
           <span>HTML Slides</span>
           <h1>端侧模型量化部署技术专题</h1>
           <p>
-            reveal.js 课件以独立页面运行，适合全屏投屏、键盘翻页和浏览器演示。
+            一日企业技术培训版课件，吸收 MIT、MLSysBook、TinyML、Arm 与 Microsoft EdgeAI
+            等课程资料后，按端侧 LLM / 小模型量化、压缩与部署工程大纲重构；当前包含 240
+            页主线课件和 48 页参考课程堆料。
           </p>
           <div>
             <a className="button button--primary button--lg" href="/slides/deck/index.html">

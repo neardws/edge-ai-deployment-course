@@ -23,6 +23,8 @@ yarn-error.log*
 # Source material kept outside the public repository
 *.docx
 *课程大纲*
+research/course-ppt/**/*.pdf
+research/course-ppt/**/*.zip
 
 # Local lab artifacts
 models/

@@ -11,6 +11,7 @@ const sidebars: SidebarsConfig = {
         'start-here',
         'student-run-coverage',
         'course-hours',
+        'slides-day-flow',
         'environment-matrix',
         'glossary',
         'math-conventions',
